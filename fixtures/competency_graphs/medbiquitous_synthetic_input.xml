@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompetencyFramework xmlns="urn:medbiq:competencyframework:v1">
+  <Title>Synthetic MedBiquitous reference graph</Title>
+  <CompetencyObject><Id>med-comp-1</Id><Title>Observe supplied information</Title></CompetencyObject>
+  <CompetencyObject><Id>med-comp-2</Id><Title>Explain a source-based conclusion</Title></CompetencyObject>
+</CompetencyFramework>

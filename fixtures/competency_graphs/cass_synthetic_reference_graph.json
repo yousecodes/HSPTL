@@ -1,0 +1,49 @@
+{
+  "schema": "hsptl.reference-graph/1.0",
+  "fixture_only": true,
+  "source_format": "CaSS JSON-LD",
+  "context": {
+    "@vocab": "https://example.invalid/cass/"
+  },
+  "nodes": [
+    {
+      "id": "urn:fixture:comp:1",
+      "kind": "competency",
+      "label": "Observe supplied information",
+      "description": "",
+      "source": "CaSS JSON-LD"
+    },
+    {
+      "id": "urn:fixture:comp:2",
+      "kind": "competency",
+      "label": "Explain a source-based conclusion",
+      "description": "",
+      "source": "CaSS JSON-LD"
+    },
+    {
+      "id": "urn:fixture:framework:1",
+      "kind": "framework",
+      "label": "Synthetic reference framework",
+      "description": "",
+      "source": "CaSS JSON-LD"
+    }
+  ],
+  "edges": [
+    {
+      "source": "urn:fixture:comp:1",
+      "predicate": "has_child",
+      "target": "urn:fixture:comp:2"
+    },
+    {
+      "source": "urn:fixture:framework:1",
+      "predicate": "contains",
+      "target": "urn:fixture:comp:1"
+    },
+    {
+      "source": "urn:fixture:framework:1",
+      "predicate": "contains",
+      "target": "urn:fixture:comp:2"
+    }
+  ],
+  "content_hash": "333f62de4f0ad5903c360367dcc87bb69188ae597d88f623651a1f69e3695203"
+}

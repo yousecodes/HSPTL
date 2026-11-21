@@ -1,0 +1,176 @@
+{
+  "scenario_id": "asthma-moderate-adult-001",
+  "version": "1.0.0",
+  "title": "Acute breathlessness: moderate asthma exacerbation",
+  "specialty": "Emergency medicine / respiratory medicine",
+  "setting": "Emergency department simulation bay",
+  "learner_level": "Senior medical student / early postgraduate",
+  "clinical_review_status": "draft_pending_clinical_review",
+  "intended_use": "Synthetic formative clinical education only; not a patient-care protocol or prescribing aid.",
+  "source_basis": [
+    {
+      "title": "Global Strategy for Asthma Management and Prevention, 2026",
+      "publisher": "Global Initiative for Asthma (GINA)",
+      "published": "2026-05",
+      "url": "https://ginasthma.org/wp-content/uploads/2026/05/GINA-2026-Strategy-Report-WMS.pdf",
+      "used_for": "Adult acute-asthma assessment dimensions and moderate-presentation descriptors. The case is a synthetic teaching adaptation, not a reproduction of the full guideline."
+    },
+    {
+      "title": "Summary Guide for Asthma Management and Prevention, 2026",
+      "publisher": "Global Initiative for Asthma (GINA)",
+      "published": "2026-07",
+      "url": "https://ginasthma.org/wp-content/uploads/2026/07/GINA-Summary-Guide-2026-WEB-WMS.pdf",
+      "used_for": "Moderate-presentation teaching context and reassessment concepts. Local institutional protocols and clinician review remain required."
+    }
+  ],
+  "educational_purpose": "Practise focused assessment, severity recognition, objective assessment, timely treatment planning, reassessment, documentation and handover in a deterministic synthetic encounter.",
+  "learning_objectives": [
+    "Perform a focused initial assessment and identify severity features and immediate red flags.",
+    "Use objective lung-function assessment when it can be obtained without delaying urgent care.",
+    "Select and document an appropriate initial treatment plan within the scenario's reviewed action catalogue.",
+    "Advance simulated time deliberately and reassess the patient's response.",
+    "Document findings, uncertainty, plan and handover in a structured form."
+  ],
+  "patient": {
+    "synthetic": true,
+    "display_id": "SIM-ASTHMA-001",
+    "age_years": 26,
+    "sex": "female",
+    "name": "Synthetic patient A",
+    "presenting_complaint": "Worsening breathlessness and wheeze since yesterday.",
+    "opening_history": "Known asthma. Reports increased reliever use during the last day and is unsure whether the current inhaler is helping.",
+    "history_after_assessment": {
+      "onset": "Worsening over approximately 24 hours after an upper-respiratory illness.",
+      "reliever_use": "More frequent than usual; exact number of uses is not supplied.",
+      "maintenance_therapy": "Current regimen and adherence require clarification.",
+      "previous_critical_events": "Not yet established; ask about prior intensive-care admission or ventilation.",
+      "allergies": "Unknown until verified.",
+      "anaphylaxis_features": "No associated rash, facial swelling or hypotensive symptoms reported in this synthetic history; reassess if new information appears."
+    },
+    "examination_after_assessment": {
+      "speech": "speaks_in_phrases",
+      "work_of_breathing": "mild_accessory_muscle_use",
+      "auscultation": "bilateral_expiratory_wheeze",
+      "air_entry": "mildly_reduced",
+      "mental_status": "alert",
+      "cyanosis": "not_observed"
+    }
+  },
+  "simulation_model": {
+    "model_id": "asthma-moderate-response-v1",
+    "version": "1.0.0",
+    "engine_version": "HSPTL-SimulationRuntime/1.0.0",
+    "clock_unit": "integer_minutes",
+    "seed_algorithm": "sha256-seed-variant-v1",
+    "seeded_variant": "heart_rate_only",
+    "clinical_fidelity_note": "A deliberately bounded educational transition model. It is not a validated physiological model, does not predict real treatment response, and must not be used for patient care."
+  },
+  "initial_state": {
+    "heart_rate_seed_options_bpm": [110, 112, 114],
+    "respiratory_rate_per_min": 27,
+    "spo2_percent_room_air": 93,
+    "systolic_bp_mmhg": 126,
+    "diastolic_bp_mmhg": 78,
+    "temperature_c": 37.1,
+    "pef_percent_predicted": 58,
+    "pef_measured": false,
+    "speech": "speaks_in_phrases",
+    "work_of_breathing": "mild_accessory_muscle_use",
+    "wheeze": "bilateral_expiratory_wheeze",
+    "air_entry": "mildly_reduced",
+    "mental_status": "alert",
+    "patient_worsening": false,
+    "assessment_complete": false,
+    "peak_flow_ordered": false,
+    "peak_flow_result_available": false,
+    "bronchodilator_given": false,
+    "bronchodilator_response_observed": false,
+    "systemic_corticosteroid_started": false,
+    "reassessment_complete": false,
+    "senior_review_requested": false
+  },
+  "observation_policy": {
+    "arrival_released": ["presenting_complaint", "opening_history", "heart_rate", "respiratory_rate", "spo2", "blood_pressure", "temperature"],
+    "assessment_released": ["history_after_assessment", "examination_after_assessment"],
+    "peak_flow_released_only_after_result": true,
+    "internal_model_state_never_returned": true
+  },
+  "action_catalogue": {
+    "focused_assessment": {
+      "label": "Complete focused assessment",
+      "description": "Review the focused history, examination and immediate severity features.",
+      "model_path": "simulation/asthma_focused_assessment_v1.json",
+      "repeats": false
+    },
+    "order_peak_flow": {
+      "label": "Order peak expiratory flow",
+      "description": "Request objective lung-function measurement. The result becomes available after two simulated minutes.",
+      "model_path": "simulation/asthma_order_peak_flow_v1.json",
+      "repeats": false
+    },
+    "administer_bronchodilator": {
+      "label": "Administer inhaled bronchodilator (scenario protocol)",
+      "description": "Record the scenario's pre-reviewed bronchodilator action. No dose is specified by this educational model.",
+      "model_path": "simulation/asthma_bronchodilator_v1.json",
+      "repeats": false
+    },
+    "start_systemic_corticosteroid": {
+      "label": "Start systemic corticosteroid (scenario protocol)",
+      "description": "Record the scenario's treatment-plan action. This model does not simulate an immediate bronchodilator effect or specify a dose.",
+      "model_path": "simulation/asthma_steroid_v1.json",
+      "repeats": false
+    },
+    "escalate_for_senior_review": {
+      "label": "Request senior clinical review",
+      "description": "Record escalation when deterioration, uncertainty or local policy makes senior review appropriate.",
+      "model_path": "simulation/asthma_escalate_v1.json",
+      "repeats": false
+    },
+    "reassess_patient": {
+      "label": "Reassess after initial treatment period",
+      "description": "Record a structured reassessment at or after 60 simulated minutes.",
+      "model_path": "simulation/asthma_reassess_v1.json",
+      "repeats": false
+    }
+  },
+  "scheduled_events": [
+    {
+      "event_id": "untreated-worsening-t30",
+      "due_at_minute": 30,
+      "priority": 20,
+      "kind": "untreated_worsening",
+      "condition": "no_bronchodilator_accepted_before_due_time"
+    }
+  ],
+  "assessment": {
+    "rubric_id": "asthma-moderate-adult-formative-v1",
+    "version": "1.0.0",
+    "status": "formative_pending_clinical_review",
+    "competence_claimed": false,
+    "criteria": [
+      {"id": "focused_assessment", "label": "Focused assessment completed", "points": 10, "basis": "A PROforma-gated focused assessment action is recorded."},
+      {"id": "objective_lung_function", "label": "Objective lung-function measurement obtained", "points": 15, "basis": "Peak-flow result is available; full points when obtained before bronchodilator without delaying treatment, partial points when obtained later."},
+      {"id": "initial_bronchodilator", "label": "Initial bronchodilator action recorded", "points": 20, "basis": "A scenario-protocol bronchodilator action is accepted; timing is reflected in the breakdown."},
+      {"id": "systemic_treatment_plan", "label": "Systemic corticosteroid plan recorded", "points": 15, "basis": "A PROforma-gated treatment-plan action is recorded; free-text dose assessment is not automated."},
+      {"id": "response_reassessment", "label": "Response reassessed", "points": 20, "basis": "A formal reassessment is recorded after the initial treatment period and the modelled response window."},
+      {"id": "clinical_note", "label": "Structured clinical note completeness", "points": 10, "basis": "Presence of assessment, findings, plan and uncertainty fields only; prose quality is not automatically graded."},
+      {"id": "handover", "label": "Structured handover completeness", "points": 10, "basis": "Presence of situation, background, assessment, recommendation and outstanding-task fields."}
+    ],
+    "limitations": [
+      "This is formative scenario-process feedback, not a clinical competence score.",
+      "Free-text clinical reasoning is not semantically graded.",
+      "The rubric requires review by qualified clinical educators before wider use.",
+      "More than one clinically defensible sequence may be accepted by future reviewed rubric versions."
+    ]
+  },
+  "debrief": {
+    "framework": "PEARLS-inspired structured reflection",
+    "prompts": [
+      "Which initial findings most influenced your assessment of severity?",
+      "What did the peak-flow result add, and did obtaining it delay treatment?",
+      "Which actions changed the simulated patient's state, and which had no immediate modelled effect?",
+      "What did you reassess, and what remained uncertain?",
+      "What would you document or communicate differently in a real supervised clinical setting?"
+    ]
+  }
+}

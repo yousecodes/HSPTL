@@ -1,0 +1,35 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# HSPTL user data
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+/.hsptl-backup/
+
+# Generated release artifacts
+/HSPTL-release.zip
+/hsptl_bundle.txt
+/versions/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+dist/

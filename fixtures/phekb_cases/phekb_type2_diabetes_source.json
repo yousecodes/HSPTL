@@ -1,0 +1,87 @@
+{
+  "fixture_id": "PHEKB-T2D-ALL-OF-US-EHR-PLUS-001",
+  "fixture_status": "source_derived_algorithm_fixture_no_patient_data",
+  "source_family": "PheKB",
+  "source_title": "Type 2 Diabetes (T2D) — All of Us EHR+ phenotype algorithm",
+  "source_url": "https://phekb.org/sites/phenotype/files/Type%202%20Diabetes.pdf",
+  "source_pages": [
+    1,
+    2,
+    3
+  ],
+  "preferred_algorithm": "t2d_dprism_ehr_plus_1",
+  "alternative_algorithm": "t2d_dprism_ehr_1_not_included",
+  "control_algorithm": "universal_control_algorithm",
+  "scope_note": "The executable fixture represents the preferred EHR+ case path and universal control path. It uses normalized, synthetic test inputs. It does not include the alternate EHR-only model or site-specific code/data mappings.",
+  "logic_notes": [
+    "Case cohort excludes age <25 years at latest assessment/exam and any Type 1 diabetes diagnosis at any time.",
+    "The EHR case path requires medication support for T2D ICD diagnosis, with the specified outpatient-insulin exception, or abnormal glycemic labs when ICD diagnosis exists without diabetes medication, or non-insulin medication plus abnormal labs when there is no T2D diagnosis.",
+    "The preferred EHR+ case path also accepts self-reported T2D.",
+    "Universal controls require age >=25, at least one in-person provider visit, at least one glucose measurement, no abnormal random glucose/fasting glucose/HbA1c where available, no diabetes or related condition from EHR/survey, and no diabetes medication."
+  ],
+  "lab_cutoffs": {
+    "hba1c": {
+      "gte": [
+        {
+          "value": 6.5,
+          "unit": "%"
+        },
+        {
+          "value": 48,
+          "unit": "mmol/mol"
+        }
+      ]
+    },
+    "fasting_glucose": {
+      "gte": [
+        {
+          "value": 126,
+          "unit": "mg/dL"
+        },
+        {
+          "value": 7.0,
+          "unit": "mmol/L"
+        }
+      ]
+    },
+    "random_glucose": {
+      "gte": [
+        {
+          "value": 200,
+          "unit": "mg/dL"
+        },
+        {
+          "value": 11.1,
+          "unit": "mmol/L"
+        }
+      ]
+    }
+  },
+  "input_fields": {
+    "age_at_latest_assessment_years": "Age at latest assessment/exam; numeric years.",
+    "type1_diabetes_any_time": "Explicit boolean: any Type 1 diabetes diagnosis at any timepoint.",
+    "t2d_icd_diagnosis_count": "Count of independent T2D ICD diagnosis records.",
+    "any_diabetes_medication": "Explicit boolean: any diabetes medication record.",
+    "outpatient_insulin_record": "Explicit boolean: outpatient insulin treatment record.",
+    "non_insulin_medication_before_insulin": "Explicit boolean: non-insulin diabetes medication before insulin initiation.",
+    "non_insulin_diabetes_medication": "Explicit boolean: prescription for a non-insulin diabetes medication.",
+    "self_reported_t2d": "Explicit boolean: participant survey reports T2D.",
+    "in_person_provider_visit_count": "Count of in-person healthcare provider visits.",
+    "glucose_measurement_count": "Count of glucose measurements in the EHR.",
+    "fasting_glucose_mg_dl": "Fasting glucose in mg/dL; null means unavailable/unknown.",
+    "fasting_glucose_mmol_l": "Fasting glucose in mmol/L; null means unavailable/unknown.",
+    "hba1c_percent": "HbA1c in percent; null means unavailable/unknown.",
+    "hba1c_mmol_mol": "HbA1c in mmol/mol; null means unavailable/unknown.",
+    "random_glucose_mg_dl": "Random glucose in mg/dL; null means unavailable/unknown.",
+    "random_glucose_mmol_l": "Random glucose in mmol/L; null means unavailable/unknown.",
+    "any_diabetes_diagnosis_or_related_condition_any_time": "Explicit boolean: any diabetes diagnosis or related condition in EHR or survey at any time.",
+    "self_reported_diabetes_any": "Explicit boolean: any diabetes diagnosis/related condition reported in survey for control assessment.",
+    "fasting_glucose_mg_dl_available": "Explicit boolean indicating whether fasting glucose is available in mg/dL.",
+    "fasting_glucose_mmol_l_available": "Explicit boolean indicating whether fasting glucose is available in mmol/L.",
+    "hba1c_percent_available": "Explicit boolean indicating whether HbA1c is available in percent.",
+    "hba1c_mmol_mol_available": "Explicit boolean indicating whether HbA1c is available in mmol/mol.",
+    "random_glucose_mg_dl_available": "Explicit boolean indicating whether random glucose is available in mg/dL.",
+    "random_glucose_mmol_l_available": "Explicit boolean indicating whether random glucose is available in mmol/L."
+  },
+  "proforma_mapping": "The fixture uses the HSPTL-PROforma-Subset/1.0 operators and facts.* references only; all inputs are synthetic and all absent/unknown quantitative inputs remain null rather than being defaulted. For optional lab measures, *_available flags explicitly distinguish an unavailable measurement from a normal result; an available measurement with a missing numeric value remains unknown and causes abstention."
+}

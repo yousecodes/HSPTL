@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hsptl.local/schemas/content-pack-1.0.0.json",
+  "title": "HSPTL versioned clinical learning content pack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pack_id",
+    "title",
+    "version",
+    "description",
+    "content_status",
+    "intended_use",
+    "generation_policy",
+    "sources",
+    "units"
+  ],
+  "properties": {
+    "pack_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 160
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20
+    },
+    "content_status": {
+      "const": "educator_review_required"
+    },
+    "intended_use": {
+      "type": "string",
+      "minLength": 20
+    },
+    "generation_policy": {
+      "type": "object",
+      "required": [
+        "engine",
+        "model_required",
+        "seeded_variation",
+        "human_review_required_before_distribution"
+      ],
+      "properties": {
+        "engine": {
+          "type": "string"
+        },
+        "model_required": {
+          "const": false
+        },
+        "seeded_variation": {
+          "type": "string"
+        },
+        "human_review_required_before_distribution": {
+          "const": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/unit"
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": [
+        "title",
+        "publisher",
+        "version",
+        "url",
+        "access_note"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "publisher": {
+          "type": "string",
+          "minLength": 2
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "access_note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "unit": {
+      "type": "object",
+      "required": [
+        "unit_id",
+        "title",
+        "specialty",
+        "level",
+        "minutes",
+        "tags",
+        "objectives",
+        "case",
+        "teaching_points",
+        "pitfalls",
+        "quiz",
+        "viva",
+        "osce",
+        "debrief",
+        "source_ids"
+      ],
+      "properties": {
+        "unit_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{2,99}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 5
+        },
+        "specialty": {
+          "type": "string",
+          "minLength": 2
+        },
+        "level": {
+          "type": "string",
+          "minLength": 3
+        },
+        "minutes": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 180
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          },
+          "uniqueItems": true
+        },
+        "objectives": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 15
+          }
+        },
+        "case": {
+          "type": "object",
+          "required": [
+            "patient",
+            "setting",
+            "presentation",
+            "history",
+            "observations",
+            "revealed_findings",
+            "task"
+          ],
+          "properties": {
+            "patient": {
+              "type": "string"
+            },
+            "setting": {
+              "type": "string"
+            },
+            "presentation": {
+              "type": "string",
+              "minLength": 20
+            },
+            "history": {
+              "type": "string",
+              "minLength": 10
+            },
+            "observations": {
+              "type": "string",
+              "minLength": 5
+            },
+            "revealed_findings": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 5
+              }
+            },
+            "task": {
+              "type": "string",
+              "minLength": 20
+            }
+          },
+          "additionalProperties": false
+        },
+        "teaching_points": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 15
+          }
+        },
+        "pitfalls": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "quiz": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "required": [
+              "stem",
+              "options",
+              "correct_index",
+              "rationale"
+            ],
+            "properties": {
+              "stem": {
+                "type": "string",
+                "minLength": 15
+              },
+              "options": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "correct_index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 20
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "viva": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "prompt",
+              "key_points"
+            ],
+            "properties": {
+              "prompt": {
+                "type": "string",
+                "minLength": 15
+              },
+              "key_points": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "string",
+                  "minLength": 5
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "osce": {
+          "type": "object",
+          "required": [
+            "title",
+            "candidate_instructions",
+            "checklist",
+            "critical_errors",
+            "time_seconds"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 5
+            },
+            "candidate_instructions": {
+              "type": "string",
+              "minLength": 20
+            },
+            "checklist": {
+              "type": "array",
+              "minItems": 4,
+              "items": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            "critical_errors": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 8
+              }
+            },
+            "time_seconds": {
+              "type": "integer",
+              "minimum": 60,
+              "maximum": 3600
+            }
+          },
+          "additionalProperties": false
+        },
+        "debrief": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "source_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

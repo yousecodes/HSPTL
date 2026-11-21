@@ -1,0 +1,1053 @@
+{
+  "pack_id": "acute-care-foundations-v1",
+  "title": "Acute Care Foundations",
+  "version": "1.0.0",
+  "description": "A starter curriculum of synthetic acute-care reasoning cases, viva prompts, OSCE stations and retrieval questions. Designed for formative practice and educator review.",
+  "content_status": "educator_review_required",
+  "intended_use": "Clinical education only; not a patient-care protocol or a substitute for local guidance.",
+  "generation_policy": {
+    "engine": "deterministic_template_composer",
+    "model_required": false,
+    "seeded_variation": "question option order only; clinical facts remain fixed",
+    "human_review_required_before_distribution": true
+  },
+  "sources": {
+    "gina2026": {
+      "title": "Global Strategy for Asthma Management and Prevention",
+      "publisher": "Global Initiative for Asthma (GINA)",
+      "version": "2026",
+      "url": "https://ginasthma.org/2026-gina-strategy-report/",
+      "access_note": "Reference link only; HSPTL does not reproduce GINA text. Verify local guidance and licence before redistribution."
+    },
+    "nice_cg95": {
+      "title": "Recent-onset chest pain of suspected cardiac origin: assessment and diagnosis",
+      "publisher": "NICE",
+      "version": "CG95; recommendations include 2016 amendments",
+      "url": "https://www.nice.org.uk/guidance/cg95/chapter/recommendations",
+      "access_note": "Reference link only; use current local acute coronary syndrome pathway."
+    },
+    "nice_ng253": {
+      "title": "Suspected sepsis in people aged 16 or over: recognition, assessment and early management",
+      "publisher": "NICE",
+      "version": "NG253; updated 23 September 2026",
+      "url": "https://www.nice.org.uk/guidance/ng253/chapter/Recommendations",
+      "access_note": "Reference link only; thresholds and management must follow the current local protocol."
+    },
+    "nice_ng128": {
+      "title": "Stroke and transient ischaemic attack in over 16s: diagnosis and initial management",
+      "publisher": "NICE",
+      "version": "NG128; last updated 13 April 2022, surveillance reviewed 27 March 2026",
+      "url": "https://www.nice.org.uk/guidance/ng128",
+      "access_note": "Reference link only; activate the current regional stroke pathway."
+    },
+    "nice_cg150": {
+      "title": "Headaches in over 12s: diagnosis and management",
+      "publisher": "NICE",
+      "version": "CG150; updated 3 June 2025",
+      "url": "https://www.nice.org.uk/guidance/cg150/chapter/Recommendations",
+      "access_note": "Reference link only; apply local referral and investigation pathways."
+    },
+    "nice_cg109": {
+      "title": "Transient loss of consciousness (blackouts) in over 16s",
+      "publisher": "NICE",
+      "version": "CG109; amended November 2023",
+      "url": "https://www.nice.org.uk/guidance/cg109",
+      "access_note": "Reference link only; use current local assessment and referral pathways."
+    },
+    "nice_ng240": {
+      "title": "Meningitis (bacterial) and meningococcal disease: recognition, diagnosis and management",
+      "publisher": "NICE",
+      "version": "NG240; 2024",
+      "url": "https://www.nice.org.uk/guidance/ng240/chapter/Recommendations",
+      "access_note": "Reference link only; suspected cases require urgent local emergency pathways."
+    }
+  },
+  "units": [
+    {
+      "unit_id": "acute-chest-pain-01",
+      "title": "Acute chest pain: risk-aware first assessment",
+      "specialty": "Emergency medicine",
+      "level": "Intermediate",
+      "minutes": 18,
+      "tags": [
+        "cardiovascular",
+        "acute assessment",
+        "risk stratification"
+      ],
+      "objectives": [
+        "Structure a chest-pain history around onset, character, radiation, duration and associated symptoms.",
+        "Identify features that require urgent escalation under the local acute chest-pain pathway.",
+        "Explain why symptom response to a medicine should not be used alone to establish a diagnosis."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 54",
+        "setting": "Emergency assessment area",
+        "presentation": "Intermittent central chest discomfort over the last hour, now recurring at rest.",
+        "history": "The learner has not yet established radiation, associated symptoms, cardiovascular history or risk factors.",
+        "observations": "BP 146/88 mmHg; pulse 104/min; respiratory rate 20/min; SpO₂ 96% on room air; temperature 36.8 °C. These values are fictional teaching data.",
+        "revealed_findings": [
+          "The discomfort radiates to the left arm.",
+          "The patient reports nausea and sweating.",
+          "The patient has a history of hypertension and smoking."
+        ],
+        "task": "Take a focused history, identify urgency, select appropriate initial assessment steps and communicate the concern. Do not delay an indicated emergency pathway for completion of the exercise."
+      },
+      "teaching_points": [
+        "Describe pain characteristics precisely rather than recording only 'chest pain'.",
+        "Consider associated symptoms and haemodynamic status alongside risk factors.",
+        "A normal or unavailable early test does not replace clinical assessment.",
+        "Use the local acute coronary syndrome pathway when suspicion is present."
+      ],
+      "pitfalls": [
+        "Assuming that all acute coronary syndromes present with central pain alone.",
+        "Using response to glyceryl trinitrate as a diagnostic test.",
+        "Allowing non-essential investigations to delay an indicated transfer or escalation."
+      ],
+      "quiz": [
+        {
+          "stem": "Which missing history element most directly improves the initial characterisation of this pain?",
+          "options": [
+            "Onset, duration, radiation and provoking or relieving factors",
+            "The patient's preferred pharmacy",
+            "The exact time of the last routine dental visit",
+            "A complete dietary diary for the previous month"
+          ],
+          "correct_index": 0,
+          "rationale": "A structured pain history records onset, duration, site, radiation, severity and provoking or relieving factors, alongside associated symptoms and relevant cardiovascular history."
+        },
+        {
+          "stem": "The patient says the discomfort improved after a nitrate. What is the safest interpretation?",
+          "options": [
+            "This response alone confirms a coronary diagnosis",
+            "This response alone excludes a coronary diagnosis",
+            "The response is not sufficiently specific to establish the diagnosis",
+            "The response makes further assessment unnecessary"
+          ],
+          "correct_index": 2,
+          "rationale": "NICE advises not to use response to glyceryl trinitrate to make the diagnosis. Integrate the history, examination, ECG, biomarkers and appropriate pathway."
+        },
+        {
+          "stem": "Which accompanying feature should increase concern in this vignette?",
+          "options": [
+            "Chest discomfort associated with sweating and nausea",
+            "A remote uncomplicated ankle sprain",
+            "A preference for sitting near a window",
+            "A normal appetite yesterday"
+          ],
+          "correct_index": 0,
+          "rationale": "Associated autonomic symptoms such as sweating and nausea can increase concern in the context of suspected acute coronary syndrome; interpret them with the whole presentation."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "How would you distinguish a focused chest-pain history from a generic symptom list?",
+          "key_points": [
+            "Pain chronology and characteristics",
+            "Radiation and associated symptoms",
+            "Cardiovascular history and risk factors",
+            "Haemodynamic symptoms and dangerous alternative diagnoses",
+            "Clear documentation of uncertainty"
+          ]
+        },
+        {
+          "prompt": "Why should a response to symptom-relief medication not be used as a diagnostic shortcut?",
+          "key_points": [
+            "Treatment response is not sufficiently specific",
+            "Risk of false reassurance or anchoring",
+            "Need for objective assessment and pathway-based evaluation"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Focused assessment of acute chest pain",
+        "candidate_instructions": "You have 7 minutes to take a focused history, identify immediate concerns and explain the initial assessment and escalation plan. This is a communication and reasoning station, not a prescribing station.",
+        "checklist": [
+          "Establishes onset, duration, site, character and severity",
+          "Asks about radiation and associated symptoms",
+          "Elicits relevant cardiovascular history and risk factors",
+          "Checks current symptoms and features of instability",
+          "Identifies need for appropriate urgent pathway when indicated",
+          "Summarises uncertainty and communicates a clear plan"
+        ],
+        "critical_errors": [
+          "Uses response to nitrate as proof of diagnosis",
+          "Provides false reassurance despite concerning ongoing symptoms",
+          "Delays indicated escalation for non-essential tasks"
+        ],
+        "time_seconds": 420
+      },
+      "debrief": [
+        "Which feature most changed your level of concern?",
+        "What information remained unknown at the point of your decision?",
+        "Did you communicate urgency without overstating diagnostic certainty?"
+      ],
+      "source_ids": [
+        "nice_cg95"
+      ]
+    },
+    {
+      "unit_id": "acute-asthma-01",
+      "title": "Acute asthma: assess, treat and reassess",
+      "specialty": "Respiratory medicine",
+      "level": "Intermediate",
+      "minutes": 20,
+      "tags": [
+        "respiratory",
+        "simulation",
+        "reassessment"
+      ],
+      "objectives": [
+        "Describe a structured assessment of an acute asthma presentation.",
+        "Use objective airflow information when available and appropriate.",
+        "Reassess clinical response and recognise when escalation is required."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 26",
+        "setting": "Emergency assessment area",
+        "presentation": "Worsening breathlessness and wheeze over several hours after a respiratory illness.",
+        "history": "The patient reports increasing reliever use. Previous asthma history and current preventer use need clarification.",
+        "observations": "Pulse 108/min; respiratory rate 24/min; SpO₂ 94% on room air; temperature 37.2 °C. Fictional values for learning only.",
+        "revealed_findings": [
+          "The patient is speaking in short phrases.",
+          "Peak expiratory flow is pending until measured in the scenario.",
+          "After an intervention, the learner must reassess symptoms, work of breathing and objective measures when available."
+        ],
+        "task": "Complete a focused assessment, identify severity concerns, select actions within the locally approved pathway and reassess the response."
+      },
+      "teaching_points": [
+        "Assess speech, work of breathing, respiratory observations and overall appearance.",
+        "Ask about previous severe attacks, recent treatment and medication use.",
+        "Use objective airflow measurement when appropriate and do not let measurement delay urgent escalation.",
+        "Document response to treatment and reassessment, not merely the treatment given."
+      ],
+      "pitfalls": [
+        "Treating one observation as a complete severity assessment.",
+        "Failing to reassess after intervention.",
+        "Assuming improvement in one measure proves full recovery.",
+        "Using a teaching scenario as a substitute for local asthma protocols."
+      ],
+      "quiz": [
+        {
+          "stem": "Which combination best reflects a structured reassessment after an intervention?",
+          "options": [
+            "Symptoms, speech, work of breathing, observations and objective airflow when available",
+            "Only the patient's age",
+            "Only whether the prescribed intervention was recorded",
+            "Only the initial oxygen saturation"
+          ],
+          "correct_index": 0,
+          "rationale": "Reassessment should consider the patient's clinical state and relevant objective measures. A recorded intervention is not evidence of response."
+        },
+        {
+          "stem": "A patient appears exhausted and is becoming less able to speak. What is the educational priority?",
+          "options": [
+            "Continue routine history-taking before escalation",
+            "Recognise potential deterioration and activate the appropriate urgent pathway",
+            "Wait for every investigation to return",
+            "Assume wheeze intensity alone determines severity"
+          ],
+          "correct_index": 1,
+          "rationale": "Signs of exhaustion or worsening ability to speak are concerning. Escalation must follow the current local emergency pathway; investigations must not delay necessary action."
+        },
+        {
+          "stem": "Why is documenting a post-intervention assessment important?",
+          "options": [
+            "It proves the intervention was correct in every case",
+            "It records whether the clinical state changed and supports the next decision",
+            "It replaces the need for monitoring",
+            "It removes the need to record uncertainty"
+          ],
+          "correct_index": 1,
+          "rationale": "The response and remaining uncertainty inform subsequent decisions. Documentation should make the sequence and rationale visible."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "What information would you seek before deciding how urgently to escalate an acute asthma presentation?",
+          "key_points": [
+            "Speech and ability to communicate",
+            "Work of breathing and general appearance",
+            "Vital observations and oxygenation",
+            "Previous severe episodes and current treatment",
+            "Objective airflow when appropriate and without delaying urgent care"
+          ]
+        },
+        {
+          "prompt": "What would you include in a meaningful reassessment?",
+          "key_points": [
+            "Time since intervention",
+            "Symptoms and functional state",
+            "Repeat observations and objective measures when indicated",
+            "Deterioration or incomplete response",
+            "Updated plan and escalation"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Acute asthma assessment and reassessment",
+        "candidate_instructions": "Perform a focused assessment on a simulated adult with worsening breathlessness. State when urgent help is required and describe how you would reassess after an intervention.",
+        "checklist": [
+          "Assesses speech and general appearance",
+          "Assesses work of breathing",
+          "Reviews vital observations",
+          "Asks about prior severe attacks and recent treatment",
+          "Identifies appropriate objective airflow assessment when feasible",
+          "States escalation triggers",
+          "Documents and reassesses response"
+        ],
+        "critical_errors": [
+          "Delays urgent escalation to complete routine measurements",
+          "Does not reassess after intervention",
+          "Treats a single normal observation as proof of recovery"
+        ],
+        "time_seconds": 480
+      },
+      "debrief": [
+        "Which finding most influenced your assessment of severity?",
+        "What did you know before acting, and what remained unknown?",
+        "How did the reassessment change your next-step reasoning?"
+      ],
+      "source_ids": [
+        "gina2026"
+      ]
+    },
+    {
+      "unit_id": "suspected-sepsis-01",
+      "title": "Suspected sepsis: recognise risk and communicate",
+      "specialty": "Emergency medicine",
+      "level": "Intermediate",
+      "minutes": 22,
+      "tags": [
+        "acute care",
+        "infection",
+        "escalation"
+      ],
+      "objectives": [
+        "Recognise that suspected infection may present with non-specific features.",
+        "Integrate observations, clinical concern and vulnerability rather than relying on fever alone.",
+        "Communicate deterioration and reassessment needs clearly."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 71",
+        "setting": "Acute medical assessment",
+        "presentation": "A patient with a two-day history of feeling unwell, reduced oral intake and new confusion.",
+        "history": "The source of infection is not yet clear. A family member reports a noticeable change from baseline behaviour.",
+        "observations": "Temperature 37.1 °C; pulse 116/min; respiratory rate 24/min; blood pressure 96/62 mmHg; SpO₂ 95% on room air. Fictional values; do not calculate or infer a formal score from this vignette.",
+        "revealed_findings": [
+          "The patient has reduced urine output.",
+          "The family member reports worsening function over the previous day.",
+          "The likely source remains uncertain."
+        ],
+        "task": "Recognise concern, gather missing information, communicate promptly and use the current local sepsis pathway. Do not independently prescribe from this educational unit."
+      },
+      "teaching_points": [
+        "Sepsis should be considered when infection is possible and the person is seriously unwell, even without a high temperature.",
+        "Listen to the patient, family and carers about change from baseline.",
+        "Use the current local risk-assessment and escalation framework.",
+        "Reassess when the patient deteriorates or does not improve."
+      ],
+      "pitfalls": [
+        "Excluding sepsis because the temperature is not high.",
+        "Ignoring family observations or communication barriers.",
+        "Treating a score as a substitute for clinical judgement.",
+        "Failing to reassess after an initial plan."
+      ],
+      "quiz": [
+        {
+          "stem": "Which feature should prevent false reassurance from the temperature reading?",
+          "options": [
+            "The patient is afebrile but has confusion, tachycardia and low blood pressure",
+            "The patient is wearing a blue shirt",
+            "The patient reports a remote healed fracture",
+            "The patient prefers written information"
+          ],
+          "correct_index": 0,
+          "rationale": "Suspected sepsis can present without a high temperature. Interpret the whole clinical picture, vulnerability and concern."
+        },
+        {
+          "stem": "A family member reports that the patient's behaviour is markedly different from baseline. How should this information be handled?",
+          "options": [
+            "Ignore it unless the patient repeats it",
+            "Record it as collateral history and incorporate it into assessment",
+            "Treat it as a confirmed infection source",
+            "Use it to replace observations"
+          ],
+          "correct_index": 1,
+          "rationale": "Collateral information about changes from usual behaviour can be important, especially when the patient has difficulty providing a history."
+        },
+        {
+          "stem": "The patient's condition worsens after the initial assessment. What is the best learning response?",
+          "options": [
+            "Keep the original plan unchanged",
+            "Reassess and escalate according to the current local pathway",
+            "Wait for the next routine review regardless of condition",
+            "Remove the earlier observations from the record"
+          ],
+          "correct_index": 1,
+          "rationale": "Deterioration or failure to improve requires reassessment and escalation in accordance with local guidance."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "Why can a normal temperature fail to exclude serious infection?",
+          "key_points": [
+            "Sepsis presentations are variable",
+            "Temperature is only one observation",
+            "Consider organ dysfunction, perfusion, mental state and trajectory"
+          ]
+        },
+        {
+          "prompt": "How would you incorporate collateral history into an acute assessment?",
+          "key_points": [
+            "Identify the source and time of the information",
+            "Clarify baseline and change",
+            "Record uncertainty",
+            "Use it alongside direct assessment and observations"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Recognising and escalating suspected sepsis",
+        "candidate_instructions": "Review the synthetic patient, identify concerning features, obtain relevant collateral history and give a concise escalation handover. Follow local policy for any clinical action.",
+        "checklist": [
+          "Recognises possible infection with systemic concern",
+          "Interprets observations as a pattern",
+          "Asks about baseline function and change",
+          "Obtains collateral history where useful",
+          "Identifies need for timely senior review/escalation",
+          "States need for reassessment and documentation"
+        ],
+        "critical_errors": [
+          "Rules out concern solely because temperature is not high",
+          "Ignores new confusion or deterioration",
+          "Does not escalate despite concerning overall presentation"
+        ],
+        "time_seconds": 480
+      },
+      "debrief": [
+        "Which cue made you concerned despite the absence of fever?",
+        "How did collateral history affect your interpretation?",
+        "What would trigger earlier reassessment?"
+      ],
+      "source_ids": [
+        "nice_ng253"
+      ]
+    },
+    {
+      "unit_id": "acute-stroke-01",
+      "title": "Suspected stroke: establish time and deficit",
+      "specialty": "Neurology",
+      "level": "Intermediate",
+      "minutes": 18,
+      "tags": [
+        "neurology",
+        "time-critical assessment",
+        "handover"
+      ],
+      "objectives": [
+        "Characterise the onset and evolution of a focal neurological deficit.",
+        "Establish and communicate last-known-well time.",
+        "Recognise the need for immediate activation of the local stroke pathway."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 63",
+        "setting": "Emergency assessment area",
+        "presentation": "Sudden onset difficulty speaking and weakness of the right arm, first noticed by a colleague.",
+        "history": "The exact onset is not yet known. The colleague can describe when the patient was last seen at their usual baseline.",
+        "observations": "Pulse 92/min; blood pressure 168/94 mmHg; capillary glucose 6.1 mmol/L. Fictional teaching values.",
+        "revealed_findings": [
+          "The colleague last saw the patient at baseline at 08:10.",
+          "Symptoms were noticed at 08:45.",
+          "The patient takes a regular anticoagulant; the exact medicine and last dose need clarification."
+        ],
+        "task": "Identify a time-critical focal deficit, establish last-known-well and key medication history, and activate the local stroke pathway."
+      },
+      "teaching_points": [
+        "Record exact last-known-well time and the source of that information.",
+        "Describe the deficit and its evolution.",
+        "Check for important mimics and immediate safety issues without delaying a stroke pathway.",
+        "Communicate anticoagulant use and relevant medication timing."
+      ],
+      "pitfalls": [
+        "Recording discovery time as onset time without qualification.",
+        "Failing to identify the collateral source.",
+        "Allowing non-essential tests to delay urgent stroke assessment.",
+        "Omitting anticoagulant history."
+      ],
+      "quiz": [
+        {
+          "stem": "The symptom was noticed at 08:45, but the patient was last known well at 08:10. Which time should be documented as last-known-well?",
+          "options": [
+            "08:45",
+            "08:10, with the source recorded",
+            "The time the learner began the examination",
+            "An estimated midpoint without explanation"
+          ],
+          "correct_index": 1,
+          "rationale": "Last-known-well is the last time the patient was known to be at their baseline. Record the source and distinguish it from symptom discovery time."
+        },
+        {
+          "stem": "Which medication detail is especially important to clarify in this vignette?",
+          "options": [
+            "Anticoagulant name and last dose",
+            "The brand of toothpaste",
+            "The patient's preferred meal",
+            "Remote vitamin use without relevance"
+          ],
+          "correct_index": 0,
+          "rationale": "Anticoagulant exposure and timing can materially affect stroke assessment and should be communicated to the treating team."
+        },
+        {
+          "stem": "What should happen when a sudden focal neurological deficit is suspected?",
+          "options": [
+            "Wait for a routine outpatient appointment",
+            "Activate the appropriate local emergency stroke pathway",
+            "Complete a full elective history before escalation",
+            "Assume symptoms are benign if they fluctuate"
+          ],
+          "correct_index": 1,
+          "rationale": "Suspected stroke is time-critical. Use the regional emergency stroke pathway and do not delay activation for non-essential tasks."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "Why is last-known-well different from the time symptoms were discovered?",
+          "key_points": [
+            "Symptoms may be unwitnessed or discovered later",
+            "The distinction affects pathway assessment",
+            "Time and source need explicit documentation"
+          ]
+        },
+        {
+          "prompt": "What information would you communicate in the first handover?",
+          "key_points": [
+            "Nature and onset of deficit",
+            "Last-known-well and discovery times",
+            "Collateral source",
+            "Anticoagulant and other relevant medication history",
+            "Immediate safety concerns"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Time-critical stroke history and handover",
+        "candidate_instructions": "Obtain a focused collateral history, identify the deficit and communicate the timeline and relevant medicines to the receiving stroke team.",
+        "checklist": [
+          "Identifies focal neurological symptoms",
+          "Establishes last-known-well time",
+          "Separates last-known-well from discovery time",
+          "Records collateral source",
+          "Clarifies anticoagulant use and timing",
+          "Activates local stroke pathway promptly"
+        ],
+        "critical_errors": [
+          "Fails to establish or communicate last-known-well",
+          "Delays stroke pathway activation for non-essential tasks",
+          "Omits known anticoagulant use"
+        ],
+        "time_seconds": 420
+      },
+      "debrief": [
+        "Which time did you initially record and why?",
+        "What source supported the last-known-well time?",
+        "What information could have been lost in handover?"
+      ],
+      "source_ids": [
+        "nice_ng128"
+      ]
+    },
+    {
+      "unit_id": "acute-headache-01",
+      "title": "Acute headache: identify secondary red flags",
+      "specialty": "Neurology",
+      "level": "Intermediate",
+      "minutes": 16,
+      "tags": [
+        "neurology",
+        "red flags",
+        "history taking"
+      ],
+      "objectives": [
+        "Characterise headache onset, time to peak and associated symptoms.",
+        "Identify features that warrant further investigation or referral.",
+        "Avoid premature classification as a primary headache when red flags are present."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 38",
+        "setting": "Urgent assessment clinic",
+        "presentation": "A new severe headache that reached maximum intensity rapidly.",
+        "history": "The learner has not yet asked about neurological symptoms, fever, trauma, pregnancy/postpartum status or previous headache pattern.",
+        "observations": "Alert at initial contact; other observations not yet obtained. Fictional scenario.",
+        "revealed_findings": [
+          "The patient describes maximal intensity within minutes.",
+          "There is no established history of similar episodes.",
+          "The focused neurological assessment has not yet been completed."
+        ],
+        "task": "Identify red flags, obtain a focused history and explain why urgent assessment may be required."
+      },
+      "teaching_points": [
+        "Establish whether onset was sudden and how quickly pain reached maximum intensity.",
+        "Ask about new neurological symptoms, fever, trauma and relevant context.",
+        "A new or substantially changed headache pattern requires careful assessment.",
+        "Do not label a headache as primary before considering secondary causes."
+      ],
+      "pitfalls": [
+        "Treating severe pain as sufficient to classify a migraine.",
+        "Failing to establish time to peak.",
+        "Ignoring a new neurological deficit or altered consciousness.",
+        "Ordering or omitting imaging without a clinical rationale."
+      ],
+      "quiz": [
+        {
+          "stem": "Which headache feature is a red flag in the NICE guidance?",
+          "options": [
+            "Sudden onset reaching maximum intensity within five minutes",
+            "A stable, familiar pattern over many years without change",
+            "Mild pain after a long day with no other symptoms",
+            "A headache diary entry"
+          ],
+          "correct_index": 0,
+          "rationale": "NICE identifies sudden-onset headache reaching maximum intensity within five minutes as a feature that warrants evaluation for further investigation or referral."
+        },
+        {
+          "stem": "What is the most important next history clarification in this vignette?",
+          "options": [
+            "Time from onset to maximum intensity and associated neurological or systemic symptoms",
+            "The patient's favourite exercise",
+            "The exact brand of their mobile phone",
+            "Their usual breakfast choices"
+          ],
+          "correct_index": 0,
+          "rationale": "The time course and associated red flags help distinguish a potentially secondary headache from a familiar primary pattern."
+        },
+        {
+          "stem": "A patient with a new headache reports a new focal neurological deficit. What should the learner do?",
+          "options": [
+            "Assume uncomplicated migraine without further assessment",
+            "Recognise a red flag and follow the urgent local assessment pathway",
+            "Recommend only a routine headache diary",
+            "Wait for symptoms to resolve before documenting"
+          ],
+          "correct_index": 1,
+          "rationale": "A new neurological deficit is a red flag in headache assessment and requires appropriate further evaluation."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "How do you distinguish a familiar primary headache pattern from a potentially secondary headache?",
+          "key_points": [
+            "Onset and time to peak",
+            "Change from previous pattern",
+            "Neurological and systemic symptoms",
+            "Trauma and relevant patient context",
+            "Appropriate escalation and safety net"
+          ]
+        },
+        {
+          "prompt": "Why is premature diagnostic labelling dangerous in a new severe headache?",
+          "key_points": [
+            "Can anchor subsequent reasoning",
+            "May overlook secondary causes",
+            "Requires documented red-flag assessment and uncertainty"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Focused headache history with red-flag screen",
+        "candidate_instructions": "Take a focused headache history and explain which features would change the urgency of assessment. Do not provide an unsupported diagnosis.",
+        "checklist": [
+          "Establishes onset and progression",
+          "Asks time to maximum intensity",
+          "Asks about neurological symptoms and consciousness",
+          "Asks about fever and recent trauma",
+          "Clarifies previous pattern and relevant context",
+          "Explains escalation if red flags are present"
+        ],
+        "critical_errors": [
+          "Ignores sudden maximal-at-onset headache",
+          "Ignores a new focal neurological deficit",
+          "Provides definitive reassurance without adequate assessment"
+        ],
+        "time_seconds": 420
+      },
+      "debrief": [
+        "Which question most changed your differential?",
+        "Did you establish time to peak precisely?",
+        "What uncertainty remains after the first assessment?"
+      ],
+      "source_ids": [
+        "nice_cg150"
+      ]
+    },
+    {
+      "unit_id": "transient-loss-consciousness-01",
+      "title": "Transient loss of consciousness: reconstruct the event",
+      "specialty": "Cardiology and emergency medicine",
+      "level": "Intermediate",
+      "minutes": 18,
+      "tags": [
+        "cardiovascular",
+        "neurology",
+        "history taking"
+      ],
+      "objectives": [
+        "Reconstruct the event using patient and witness accounts.",
+        "Identify features that raise concern for a cardiac cause or another serious diagnosis.",
+        "Recognise the role of ECG and focused assessment."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 47",
+        "setting": "Same-day urgent assessment",
+        "presentation": "A brief episode of collapse while walking uphill, with rapid recovery.",
+        "history": "The patient is unsure of the duration. A witness saw the event but has not yet been interviewed.",
+        "observations": "Currently alert; pulse 88/min; blood pressure 124/78 mmHg. Fictional values.",
+        "revealed_findings": [
+          "The witness reports no prolonged confusion after the episode.",
+          "The patient remembers palpitations immediately before collapse.",
+          "A first-degree relative died suddenly at a young age."
+        ],
+        "task": "Obtain the witness account, characterise the event and identify the need for appropriate cardiovascular assessment."
+      },
+      "teaching_points": [
+        "Ask about posture, activity, prodrome, colour, movements, duration and recovery.",
+        "Witness accounts can clarify event sequence and recovery.",
+        "Consider exertional collapse, palpitations and family history of sudden death as concerning features.",
+        "ECG is an important part of the initial assessment."
+      ],
+      "pitfalls": [
+        "Assuming every collapse is a seizure or simple faint.",
+        "Ignoring exertional onset or palpitations.",
+        "Failing to obtain a witness account.",
+        "Not documenting recovery and post-event confusion."
+      ],
+      "quiz": [
+        {
+          "stem": "Which detail most increases concern for a cardiac cause in this vignette?",
+          "options": [
+            "Collapse during exertion with preceding palpitations",
+            "A remote uncomplicated skin rash",
+            "Feeling hungry before lunch",
+            "A preference for sleeping on one side"
+          ],
+          "correct_index": 0,
+          "rationale": "Exertional syncope and palpitations are important red flags and warrant appropriate cardiovascular assessment."
+        },
+        {
+          "stem": "Why is a witness account valuable?",
+          "options": [
+            "It replaces the patient's history in every case",
+            "It can clarify event duration, observed movements and recovery",
+            "It confirms a diagnosis without examination",
+            "It is only useful when the patient is unconscious now"
+          ],
+          "correct_index": 1,
+          "rationale": "A witness can provide important details of the event and recovery, particularly when the patient has incomplete recall."
+        },
+        {
+          "stem": "Which test is a core part of initial assessment for transient loss of consciousness in NICE guidance?",
+          "options": [
+            "12-lead ECG",
+            "Routine whole-body CT for every patient",
+            "A screening chest MRI",
+            "No investigations are required"
+          ],
+          "correct_index": 0,
+          "rationale": "A 12-lead ECG is part of the initial assessment and can reveal abnormalities that require further evaluation."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "What event details help distinguish syncope from other causes of transient loss of consciousness?",
+          "key_points": [
+            "Circumstances and posture",
+            "Prodrome and palpitations",
+            "Witnessed colour or movements",
+            "Duration and recovery",
+            "Post-event confusion or injury"
+          ]
+        },
+        {
+          "prompt": "Which historical features should prompt concern for a cardiac cause?",
+          "key_points": [
+            "Exertional or supine episode",
+            "Palpitations",
+            "Family history of sudden cardiac death",
+            "Known structural heart disease or abnormal ECG"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Witness-informed assessment after collapse",
+        "candidate_instructions": "Take a focused history from the patient and witness, then summarise features that affect urgency and the need for ECG-based assessment.",
+        "checklist": [
+          "Establishes circumstances and posture",
+          "Asks about prodrome and palpitations",
+          "Obtains witness description",
+          "Clarifies duration and recovery",
+          "Asks about family history and cardiac history",
+          "Identifies ECG and appropriate referral considerations"
+        ],
+        "critical_errors": [
+          "Ignores exertional collapse",
+          "Ignores preceding palpitations or family sudden death",
+          "Fails to obtain witness details when available"
+        ],
+        "time_seconds": 420
+      },
+      "debrief": [
+        "What did the witness add that the patient could not?",
+        "Which red flag most affected your next step?",
+        "How did you distinguish event description from diagnostic conclusion?"
+      ],
+      "source_ids": [
+        "nice_cg109"
+      ]
+    },
+    {
+      "unit_id": "acute-meningitis-01",
+      "title": "Meningitis: recognise a dangerous combination",
+      "specialty": "Infectious diseases and emergency medicine",
+      "level": "Intermediate",
+      "minutes": 16,
+      "tags": [
+        "infection",
+        "neurology",
+        "time-critical escalation"
+      ],
+      "objectives": [
+        "Recognise a concerning combination of fever, headache, neck stiffness and altered cognition.",
+        "Understand that absence of one feature does not automatically exclude meningitis.",
+        "Communicate suspected meningitis and the need for emergency assessment."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 22",
+        "setting": "Urgent care",
+        "presentation": "Fever, severe headache and increasing drowsiness over the day.",
+        "history": "The learner has not yet clarified neck stiffness, rash, exposure history or recent change in cognition.",
+        "observations": "Temperature 39.0 °C; pulse 122/min; respiratory rate 23/min. Fictional values.",
+        "revealed_findings": [
+          "The patient reports neck pain and photophobia.",
+          "A friend reports that the patient is unusually confused.",
+          "No rash is visible at the first examination."
+        ],
+        "task": "Recognise the concern, communicate promptly and activate the local emergency transfer pathway when meningitis is suspected."
+      },
+      "teaching_points": [
+        "A combination of fever, headache, neck stiffness and altered consciousness or cognition is a major red-flag pattern.",
+        "Clinical suspicion may remain high even when not every feature is present.",
+        "A rash is not required before taking a concerning presentation seriously.",
+        "Emergency transfer and senior assessment must follow the current local pathway."
+      ],
+      "pitfalls": [
+        "Waiting for all classic features before escalating.",
+        "Using absence of rash as reassurance.",
+        "Allowing non-essential tasks to delay emergency transfer.",
+        "Failing to tell the receiving team why meningitis is suspected."
+      ],
+      "quiz": [
+        {
+          "stem": "Which combination is identified by NICE as a major red-flag combination for bacterial meningitis?",
+          "options": [
+            "Fever, headache, neck stiffness and altered consciousness or cognition",
+            "Cough, ankle swelling, itch and constipation",
+            "Back pain, reflux, rash and insomnia",
+            "Headache alone in a person with a long stable history"
+          ],
+          "correct_index": 0,
+          "rationale": "NICE identifies this combination as a strong reason to suspect bacterial meningitis. It is not the only possible presentation."
+        },
+        {
+          "stem": "The patient has no visible rash. What should the learner conclude?",
+          "options": [
+            "Meningitis is excluded",
+            "The absence of rash does not exclude meningitis; interpret the full clinical picture",
+            "No further assessment is needed",
+            "The patient can automatically be discharged"
+          ],
+          "correct_index": 1,
+          "rationale": "A rash is not required for meningitis to be suspected. Use the overall clinical presentation and local emergency pathway."
+        },
+        {
+          "stem": "When bacterial meningitis is suspected, what is the appropriate educational priority?",
+          "options": [
+            "Arrange routine follow-up next month",
+            "Activate the local emergency transfer and senior assessment pathway",
+            "Wait for every investigation before communicating concern",
+            "Provide reassurance based on age alone"
+          ],
+          "correct_index": 1,
+          "rationale": "NICE recommends emergency transfer for suspected bacterial meningitis or meningococcal disease. Local protocols govern the operational steps."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "Why should the learner not wait for the complete red-flag combination before considering meningitis?",
+          "key_points": [
+            "Clinical presentation is variable",
+            "Not every feature is present in every person",
+            "Risk of delayed escalation",
+            "Need for clinical judgement and full assessment"
+          ]
+        },
+        {
+          "prompt": "What should be included in the emergency handover?",
+          "key_points": [
+            "Symptoms and time course",
+            "Observations and mental-state change",
+            "Relevant examination findings",
+            "Reason for suspicion",
+            "Actions taken and outstanding information"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Recognising and escalating suspected meningitis",
+        "candidate_instructions": "Review the synthetic presentation, identify the concerning pattern and give a concise emergency handover. Do not delay escalation to complete routine tasks.",
+        "checklist": [
+          "Recognises fever and severe headache",
+          "Asks about neck stiffness and cognition",
+          "Obtains collateral history when confusion is present",
+          "Does not rely on rash being present",
+          "Identifies need for emergency transfer",
+          "Communicates concern and key findings clearly"
+        ],
+        "critical_errors": [
+          "Rules out meningitis because rash is absent",
+          "Waits for every feature before escalating",
+          "Fails to communicate altered cognition"
+        ],
+        "time_seconds": 360
+      },
+      "debrief": [
+        "Which information changed the level of concern?",
+        "What was absent, and why did that not provide reassurance?",
+        "Was the urgency clear in your handover?"
+      ],
+      "source_ids": [
+        "nice_ng240"
+      ]
+    },
+    {
+      "unit_id": "acute-abdominal-pain-01",
+      "title": "Acute abdominal pain: structure the assessment",
+      "specialty": "General surgery",
+      "level": "Beginner to intermediate",
+      "minutes": 18,
+      "tags": [
+        "surgery",
+        "acute assessment",
+        "differential diagnosis"
+      ],
+      "objectives": [
+        "Characterise abdominal pain by site, onset, progression and associated symptoms.",
+        "Identify peritonism, haemodynamic compromise and other urgent features.",
+        "Include pregnancy possibility and relevant surgical history when applicable."
+      ],
+      "case": {
+        "patient": "Synthetic adult, age 31",
+        "setting": "Emergency assessment area",
+        "presentation": "Progressive lower abdominal pain with nausea.",
+        "history": "The learner has not yet established exact onset, migration, bowel and urinary symptoms, menstrual history or pregnancy possibility.",
+        "observations": "Pulse 108/min; blood pressure 112/72 mmHg; temperature 37.8 °C. Fictional values.",
+        "revealed_findings": [
+          "Pain has localised to the right lower abdomen.",
+          "Movement worsens the pain.",
+          "Pregnancy possibility has not yet been established."
+        ],
+        "task": "Take a structured history, identify urgent features and explain a proportionate investigation strategy using local pathways."
+      },
+      "teaching_points": [
+        "Record location, onset, character, radiation and progression.",
+        "Ask about vomiting, bowel, urinary and reproductive symptoms where relevant.",
+        "Consider pregnancy possibility where clinically applicable.",
+        "Look for peritonism and haemodynamic compromise.",
+        "Use serial examination when the diagnosis remains uncertain."
+      ],
+      "pitfalls": [
+        "Anchoring on one diagnosis before exploring alternatives.",
+        "Failing to consider pregnancy possibility when relevant.",
+        "Ignoring pain progression or peritoneal features.",
+        "Treating a single reassuring observation as definitive."
+      ],
+      "quiz": [
+        {
+          "stem": "Which history element is important to include when clinically applicable in an adult with lower abdominal pain?",
+          "options": [
+            "Pregnancy possibility and relevant menstrual/reproductive history",
+            "The exact number of daily emails",
+            "A complete childhood school record",
+            "The patient's preferred television programme"
+          ],
+          "correct_index": 0,
+          "rationale": "Pregnancy possibility and relevant reproductive history can materially change the differential diagnosis and investigation strategy."
+        },
+        {
+          "stem": "The pain is becoming localised and movement worsens it. What should the learner do?",
+          "options": [
+            "Document progression and assess for peritoneal features and instability",
+            "Assume it is benign because nausea is present",
+            "Avoid examination",
+            "Wait for the pain to resolve without reassessment"
+          ],
+          "correct_index": 0,
+          "rationale": "Progression, localisation and movement-related pain should prompt focused assessment, including urgent features and serial review when needed."
+        },
+        {
+          "stem": "The initial diagnosis remains uncertain after the first assessment. What is a defensible approach?",
+          "options": [
+            "Record uncertainty, reassess and use targeted investigations based on the evolving picture",
+            "Invent a definitive diagnosis to complete the form",
+            "Repeat every possible investigation without a question",
+            "Delete the initial assessment"
+          ],
+          "correct_index": 0,
+          "rationale": "Clinical reasoning should preserve uncertainty and use evolving findings to guide targeted investigation and reassessment."
+        }
+      ],
+      "viva": [
+        {
+          "prompt": "How would you structure the history of acute abdominal pain?",
+          "key_points": [
+            "Onset, site, character, radiation, severity and progression",
+            "Associated gastrointestinal, urinary and reproductive symptoms",
+            "Previous operations and relevant medicines",
+            "Pregnancy possibility where applicable"
+          ]
+        },
+        {
+          "prompt": "What findings would change the urgency of assessment?",
+          "key_points": [
+            "Haemodynamic compromise",
+            "Peritonism",
+            "Severe or rapidly worsening pain",
+            "Bleeding, pregnancy-related concerns or other time-critical features"
+          ]
+        }
+      ],
+      "osce": {
+        "title": "Structured history for acute abdominal pain",
+        "candidate_instructions": "Take a focused history, identify important missing information and explain what findings would trigger urgent escalation.",
+        "checklist": [
+          "Characterises pain and its progression",
+          "Asks relevant gastrointestinal and urinary symptoms",
+          "Asks reproductive/pregnancy history when applicable",
+          "Reviews previous surgery and medicines",
+          "Assesses for instability and peritoneal features",
+          "States uncertainty and a targeted plan"
+        ],
+        "critical_errors": [
+          "Fails to consider pregnancy when relevant",
+          "Ignores signs of peritonism or instability",
+          "Gives definitive reassurance without adequate assessment"
+        ],
+        "time_seconds": 480
+      },
+      "debrief": [
+        "What was your first anchor and did you test alternatives?",
+        "Which missing history item could change the pathway?",
+        "How did you handle diagnostic uncertainty?"
+      ],
+      "source_ids": []
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "events": {
+    "platform.curriculum.activated": {
+      "description": "A reviewed curriculum version was activated",
+      "required": [
+        "curriculum_id",
+        "version",
+        "content_digest",
+        "reviewer",
+        "reviewed_at"
+      ]
+    },
+    "platform.curriculum.draft_created": {
+      "description": "A versioned curriculum pathway draft was composed",
+      "required": [
+        "curriculum_id",
+        "version",
+        "title",
+        "description",
+        "unit_ids",
+        "stages",
+        "prerequisites",
+        "source_packs",
+        "ordering_derivation",
+        "unlock_logic_version",
+        "content_digest",
+        "status"
+      ]
+    },
+    "platform.guard.abstained": {
+      "description": "Guard cannot decide",
+      "required": [
+        "guard_id",
+        "decision",
+        "reason"
+      ]
+    },
+    "platform.guard.checked": {
+      "description": "Guard evaluated as pass or fail",
+      "required": [
+        "guard_id",
+        "decision",
+        "reason"
+      ]
+    },
+    "platform.learning.quiz_submitted": {
+      "description": "A formative learning-unit quiz attempt was recorded",
+      "required": [
+        "attempt_id",
+        "idempotency_key",
+        "learner_id",
+        "curriculum_id",
+        "curriculum_version",
+        "unit_id",
+        "pack_id",
+        "pack_version",
+        "score",
+        "maximum",
+        "responses",
+        "objective_results",
+        "submitted_at"
+      ]
+    },
+    "platform.learning.unit_opened": {
+      "description": "A learner opened a curriculum unit",
+      "required": [
+        "learner_id",
+        "curriculum_id",
+        "curriculum_version",
+        "unit_id",
+        "pack_id",
+        "pack_version"
+      ]
+    },
+    "platform.learning_object.composed": {
+      "description": "Template composition emitted",
+      "required": [
+        "object"
+      ]
+    },
+    "platform.mastery.signal_recorded": {
+      "description": "Formative signal recorded",
+      "required": [
+        "competency_id",
+        "learner_id",
+        "signal",
+        "evidence_ref",
+        "reviewer"
+      ]
+    },
+    "platform.pathway.abstained": {
+      "description": "PROforma execution abstained",
+      "required": [
+        "enactment_id",
+        "state",
+        "reason"
+      ]
+    },
+    "platform.pathway.enacted": {
+      "description": "PROforma plan started",
+      "required": [
+        "enactment_id",
+        "state"
+      ]
+    },
+    "platform.pathway.stepped": {
+      "description": "PROforma task advanced",
+      "required": [
+        "enactment_id",
+        "state",
+        "task_id"
+      ]
+    },
+    "platform.plugin.configured": {
+      "description": "Workspace presentation configuration changed",
+      "required": [
+        "workspace",
+        "config"
+      ]
+    },
+    "platform.pulse.action_requested": {
+      "description": "Pulse action request",
+      "required": [
+        "action",
+        "decision"
+      ]
+    },
+    "platform.pulse.observation_recorded": {
+      "description": "Connected Pulse physiological observation snapshot; may include evidence-linked reviewed clinical-state assertions for ASP projection.",
+      "required": [
+        "source",
+        "sequence",
+        "observations"
+      ]
+    },
+    "platform.route.decided": {
+      "description": "Workspace routing decision",
+      "required": [
+        "object_id",
+        "workspace",
+        "eligibility"
+      ]
+    },
+    "platform.scenario.draft_saved": {
+      "description": "A versioned synthetic scenario draft was saved",
+      "required": [
+        "scenario_id",
+        "version",
+        "scenario_digest",
+        "author",
+        "review_status"
+      ]
+    },
+    "platform.scenario.published": {
+      "description": "A synthetic scenario version was published after configured clinical review",
+      "required": [
+        "scenario_id",
+        "version",
+        "scenario_digest",
+        "reviewer",
+        "reviewed_at"
+      ]
+    },
+    "platform.synthetic_data.dataset_imported": {
+      "description": "An accepted synthetic dataset was imported into the local clinical fixture registry",
+      "required": [
+        "dataset_id",
+        "job_id",
+        "imported_patients",
+        "imported_facts",
+        "idempotency_key",
+        "import_status"
+      ]
+    },
+    "platform.synthetic_data.dataset_registered": {
+      "description": "A synthetic dataset was registered with an immutable provenance manifest",
+      "required": [
+        "dataset_id",
+        "job_id",
+        "recipe_id",
+        "recipe_version",
+        "manifest_digest",
+        "artifact_count",
+        "accepted_patients"
+      ]
+    },
+    "platform.synthetic_data.generation_completed": {
+      "description": "Synthea population generation finished with cohort selection metrics",
+      "required": [
+        "job_id",
+        "generated_patients",
+        "matched_patients",
+        "selected_patients",
+        "cohort_status"
+      ]
+    },
+    "platform.synthetic_data.job_cancelled": {
+      "description": "A synthetic data factory job was cancelled",
+      "required": [
+        "job_id",
+        "stage",
+        "reason"
+      ]
+    },
+    "platform.synthetic_data.job_queued": {
+      "description": "A synthetic data generation job was queued",
+      "required": [
+        "job_id",
+        "recipe_id",
+        "recipe_version",
+        "idempotency_key"
+      ]
+    },
+    "platform.synthetic_data.recipe_activated": {
+      "description": "A synthetic data recipe passed technical and clinical review and was activated",
+      "required": [
+        "recipe_id",
+        "version",
+        "content_digest",
+        "reviewer",
+        "reviewed_at"
+      ]
+    },
+    "platform.synthetic_data.recipe_created": {
+      "description": "A declarative synthetic data generation recipe draft was created",
+      "required": [
+        "recipe_id",
+        "version",
+        "status",
+        "owner"
+      ]
+    },
+    "platform.synthetic_data.records_quarantined": {
+      "description": "Synthetic patient bundles were quarantined with diagnostic findings",
+      "required": [
+        "job_id",
+        "dataset_id",
+        "quarantined_patients",
+        "rule_ids",
+        "severity_counts"
+      ]
+    },
+    "platform.synthetic_data.review_recorded": {
+      "description": "A synthetic data quarantine or recipe review decision was recorded",
+      "required": [
+        "item_id",
+        "dataset_id",
+        "reviewer_id",
+        "decision",
+        "rationale"
+      ]
+    },
+    "platform.synthetic_data.stage_changed": {
+      "description": "A synthetic data factory pipeline stage changed state",
+      "required": [
+        "job_id",
+        "stage",
+        "stage_version",
+        "status",
+        "counts"
+      ]
+    },
+    "platform.synthetic_data.validation_completed": {
+      "description": "Layered synthetic dataset validation completed",
+      "required": [
+        "job_id",
+        "dataset_id",
+        "validator_id",
+        "validator_version",
+        "strict_conformance",
+        "finding_counts",
+        "dimension_results"
+      ]
+    },
+    "platform.terminology.imported": {
+      "description": "Licensed SNOMED CT RF2 terminology index imported",
+      "required": [
+        "edition",
+        "effective_time",
+        "concept_count",
+        "description_count",
+        "file_hashes"
+      ]
+    },
+    "platform.write.prevented": {
+      "description": "A prohibited or malformed write was blocked and audited",
+      "required": [
+        "attempted_event_type",
+        "reason",
+        "payload_digest",
+        "layer"
+      ]
+    }
+  },
+  "policy": "append-only; malformed writes are rejected and audited as platform.write.prevented",
+  "schema": "hsptl.event/1.0"
+}

@@ -1,0 +1,35 @@
+{
+  "id": "HSPTL-PATH-REASONED-CHOICE-1.0",
+  "type": "plan",
+  "title": "Reasoned learning-object choice",
+  "metadata": {
+    "logic_language": "PROforma",
+    "fixture": true,
+    "purpose": "demonstrate indicative additive argumentation; never auto-select"
+  },
+  "tasks": [
+    {
+      "id": "choose-review-object",
+      "type": "decision",
+      "prompt": "Review the balance of reasons and choose the next learning object.",
+      "options": [
+        {
+          "id": "review-prerequisite-topic",
+          "label": "Review the prerequisite topic",
+          "arguments": [
+            {"id": "prerequisite-support", "polarity": "for", "weight": 2.0, "when": {"op": "eq", "left": {"ref": "facts.prerequisite_gap"}, "right": true}, "label": "Addresses an identified prerequisite gap"},
+            {"id": "review-not-due", "polarity": "against", "weight": 0.5, "when": {"op": "eq", "left": {"ref": "facts.review_overdue"}, "right": false}, "label": "Review is not yet due"}
+          ]
+        },
+        {
+          "id": "practice-current-topic",
+          "label": "Practise the current topic",
+          "arguments": [
+            {"id": "practice-support", "polarity": "for", "weight": 1.5, "when": {"op": "eq", "left": {"ref": "facts.current_topic_weak"}, "right": true}, "label": "Recent performance indicates a learning need"},
+            {"id": "prerequisite-opposition", "polarity": "against", "weight": 1.0, "when": {"op": "eq", "left": {"ref": "facts.prerequisite_gap"}, "right": true}, "label": "Prerequisite gap may reduce readiness"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "fixture_id": "PHEKB-SHAPE-001",
+  "fixture_status": "synthetic_training_fixture_not_a_published_PheKB_algorithm",
+  "phenotype_id": "synthetic-cohort-readiness",
+  "title": "Synthetic cohort readiness example",
+  "source_ref": "PheKB phenotype algorithm structure; curator-normalized synthetic example",
+  "combination": "all",
+  "criteria": [
+    {"id": "dataset-present", "label": "Required test dataset is available", "expression": {"op": "eq", "left": {"ref": "facts.dataset_ready"}, "right": true}},
+    {"id": "dictionary-reviewed", "label": "The test data dictionary has been reviewed", "expression": {"op": "eq", "left": {"ref": "facts.dictionary_reviewed"}, "right": true}}
+  ]
+}

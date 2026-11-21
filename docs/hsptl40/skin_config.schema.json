@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hsptl.local/schemas/workspace-skin/1.0.0.json",
+  "title": "HSPTL Workspace Skin Configuration",
+  "type": "object",
+  "required": [
+    "skin_id",
+    "schema_version",
+    "modules",
+    "presentation",
+    "routing_profile",
+    "config"
+  ],
+  "properties": {
+    "skin_id": {
+      "enum": [
+        "clinic",
+        "rounds",
+        "lab",
+        "ward",
+        "exam",
+        "portfolio"
+      ]
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "label": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "presentation": {
+      "type": "object",
+      "properties": {
+        "density": {
+          "type": "string"
+        },
+        "canvas": {
+          "type": "string"
+        },
+        "accent": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "routing_profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "config": {
+      "type": "object"
+    },
+    "acceptance_predicates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "skin_id": {
+            "const": "lab"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "type": "object",
+            "properties": {
+              "display_units": {
+                "enum": [
+                  "SI",
+                  "US"
+                ]
+              },
+              "visible_observations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 64
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "skin_id": {
+            "enum": [
+              "clinic",
+              "rounds",
+              "ward",
+              "portfolio"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "type": "object",
+            "properties": {
+              "focus": {
+                "type": "string",
+                "maxLength": 120
+              },
+              "section_labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "skin_id": {
+            "const": "exam"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "type": "object",
+            "properties": {
+              "exam_presentation": {
+                "enum": [
+                  "focused",
+                  "accessible",
+                  "compact"
+                ]
+              },
+              "section_labels": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "not": {
+    "anyOf": [
+      {
+        "required": [
+          "clinical_facts"
+        ]
+      },
+      {
+        "required": [
+          "diagnoses"
+        ]
+      },
+      {
+        "required": [
+          "evidence"
+        ]
+      },
+      {
+        "required": [
+          "appraisal_rules"
+        ]
+      },
+      {
+        "required": [
+          "routing_predicates"
+        ]
+      },
+      {
+        "required": [
+          "preconditions"
+        ]
+      },
+      {
+        "required": [
+          "clinical_thresholds"
+        ]
+      },
+      {
+        "required": [
+          "medical_rules"
+        ]
+      }
+    ]
+  }
+}

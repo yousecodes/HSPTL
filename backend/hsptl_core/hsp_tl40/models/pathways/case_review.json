@@ -1,0 +1,11 @@
+{
+  "id": "HSPTL-PATH-CASE-REVIEW-1.0",
+  "type": "plan",
+  "title": "Structured case review pathway",
+  "metadata": {"logic_language": "PROforma", "fixture": true, "purpose": "educational case review"},
+  "tasks": [
+    {"id": "learning-question", "type": "inquiry", "prompt": "State the learning question.", "response_key": "learning_question", "required": true},
+    {"id": "evidence-source", "type": "inquiry", "prompt": "Identify the evidence source for this learning session.", "response_key": "evidence_source", "required": true},
+    {"id": "review-complete", "type": "action", "label": "Complete the structured review", "preconditions": {"op": "and", "args": [{"op": "exists", "left": {"ref": "answers.learning_question"}}, {"op": "exists", "left": {"ref": "answers.evidence_source"}}]}}
+  ]
+}

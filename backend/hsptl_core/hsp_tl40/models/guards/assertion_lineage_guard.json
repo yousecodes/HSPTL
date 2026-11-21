@@ -1,0 +1,7 @@
+{
+  "id": "HSPTL-GUARD-ASSERTION-LINEAGE-1.0",
+  "type": "plan",
+  "title": "Assertion lineage guard",
+  "preconditions": {"op": "and", "args": [{"op": "exists", "left": {"ref": "facts.evidence_entity"}}, {"op": "exists", "left": {"ref": "facts.appraisal_event"}}, {"op": "eq", "left": {"ref": "facts.appraisal_decision"}, "right": "pass"}, {"op": "eq", "left": {"ref": "facts.rights_decision"}, "right": "permitted"}, {"op": "eq", "left": {"ref": "facts.source_span_hash_matches"}, "right": true}]},
+  "tasks": [{"id": "lineage-guarded", "type": "action", "label": "Allow assertion composition"}]
+}

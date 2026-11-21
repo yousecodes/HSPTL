@@ -1,0 +1,10 @@
+{
+  "fixture_id": "GRADE-SUBSET-001",
+  "fixture_status": "synthetic_domain_appraisal_fixture",
+  "framework": "GRADE domain appraisal subset",
+  "domains": ["risk_of_bias", "inconsistency", "indirectness", "imprecision", "publication_bias"],
+  "allowed_domain_responses": ["no_concern", "serious", "very_serious", "not_assessed"],
+  "requires_human_review": true,
+  "automated_certainty_aggregation": false,
+  "rationale": "Educational prompts only. Domain selections, upgrade considerations and final certainty require reviewer/panel judgement; no numerical score is inferred."
+}

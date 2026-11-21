@@ -1,0 +1,25 @@
+{
+  "schema": "hsptl.asp-ruleset/1.0",
+  "rulesets": [
+    {
+      "id": "pathway-temporal",
+      "version": "1.1",
+      "file": "pathway_temporal_v1.lp",
+      "source_language": "ASP-Core-2",
+      "execution": "in-process clingo library",
+      "inputs": [
+        "canonical event log records",
+        "PROforma task declarations",
+        "next canonical event sequence"
+      ],
+      "outputs": [
+        "recognized_state/1",
+        "pathway_deviation/4",
+        "prerequisite_ready/2",
+        "temporal_missing/3",
+        "temporal_satisfied/3"
+      ]
+    }
+  ],
+  "policy": "Rules are versioned data; no ASP service or executable user code is permitted."
+}

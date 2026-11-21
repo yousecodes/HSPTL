@@ -1,0 +1,162 @@
+{
+  "schema": "hsptl.golden-corpus/1.0",
+  "cases": [
+    {
+      "id": "GOLDEN-PF-001",
+      "model": "phekb_style_case_001",
+      "facts": {
+        "dataset_ready": true,
+        "dictionary_reviewed": true
+      },
+      "expected_debug_state": "active",
+      "expected_next_task": "criterion-dataset-present"
+    },
+    {
+      "id": "GOLDEN-PF-002",
+      "model": "phekb_style_case_001",
+      "facts": {},
+      "expected_debug_state": "abstain",
+      "expected_next_task": "criterion-dataset-present"
+    },
+    {
+      "id": "GOLDEN-GRADE-001",
+      "model": "grade_domain_appraisal",
+      "facts": {},
+      "expected_debug_state": "active",
+      "expected_next_task": "risk-of-bias"
+    },
+    {
+      "id": "GOLDEN-PHEKB-T2D-CASE-001",
+      "model": "phekb_type2_diabetes_ehr_plus",
+      "facts": {
+        "age_at_latest_assessment_years": 55,
+        "type1_diabetes_any_time": false,
+        "t2d_icd_diagnosis_count": 1,
+        "any_diabetes_medication": true,
+        "outpatient_insulin_record": false,
+        "non_insulin_medication_before_insulin": false,
+        "non_insulin_diabetes_medication": false,
+        "self_reported_t2d": false,
+        "in_person_provider_visit_count": 1,
+        "glucose_measurement_count": 1,
+        "fasting_glucose_mg_dl_available": true,
+        "fasting_glucose_mg_dl": 90,
+        "fasting_glucose_mmol_l_available": false,
+        "fasting_glucose_mmol_l": null,
+        "hba1c_percent_available": true,
+        "hba1c_percent": 5.4,
+        "hba1c_mmol_mol_available": false,
+        "hba1c_mmol_mol": null,
+        "random_glucose_mg_dl_available": false,
+        "random_glucose_mg_dl": null,
+        "random_glucose_mmol_l_available": false,
+        "random_glucose_mmol_l": null,
+        "any_diabetes_diagnosis_or_related_condition_any_time": true,
+        "self_reported_diabetes_any": false
+      },
+      "expected_debug_state": "active",
+      "expected_eligible_options": [
+        "case"
+      ]
+    },
+    {
+      "id": "GOLDEN-PHEKB-T2D-CONTROL-001",
+      "model": "phekb_type2_diabetes_ehr_plus",
+      "facts": {
+        "age_at_latest_assessment_years": 55,
+        "type1_diabetes_any_time": false,
+        "t2d_icd_diagnosis_count": 0,
+        "any_diabetes_medication": false,
+        "outpatient_insulin_record": false,
+        "non_insulin_medication_before_insulin": false,
+        "non_insulin_diabetes_medication": false,
+        "self_reported_t2d": false,
+        "in_person_provider_visit_count": 1,
+        "glucose_measurement_count": 1,
+        "fasting_glucose_mg_dl_available": true,
+        "fasting_glucose_mg_dl": 90,
+        "fasting_glucose_mmol_l_available": false,
+        "fasting_glucose_mmol_l": null,
+        "hba1c_percent_available": true,
+        "hba1c_percent": 5.4,
+        "hba1c_mmol_mol_available": false,
+        "hba1c_mmol_mol": null,
+        "random_glucose_mg_dl_available": false,
+        "random_glucose_mg_dl": null,
+        "random_glucose_mmol_l_available": false,
+        "random_glucose_mmol_l": null,
+        "any_diabetes_diagnosis_or_related_condition_any_time": false,
+        "self_reported_diabetes_any": false
+      },
+      "expected_debug_state": "active",
+      "expected_eligible_options": [
+        "control"
+      ]
+    },
+    {
+      "id": "GOLDEN-PHEKB-T2D-AGE-EXCLUSION-001",
+      "model": "phekb_type2_diabetes_ehr_plus",
+      "facts": {
+        "age_at_latest_assessment_years": 22,
+        "type1_diabetes_any_time": false,
+        "t2d_icd_diagnosis_count": 0,
+        "any_diabetes_medication": false,
+        "outpatient_insulin_record": false,
+        "non_insulin_medication_before_insulin": false,
+        "non_insulin_diabetes_medication": false,
+        "self_reported_t2d": false,
+        "in_person_provider_visit_count": 1,
+        "glucose_measurement_count": 1,
+        "fasting_glucose_mg_dl_available": true,
+        "fasting_glucose_mg_dl": 90,
+        "fasting_glucose_mmol_l_available": false,
+        "fasting_glucose_mmol_l": null,
+        "hba1c_percent_available": true,
+        "hba1c_percent": 5.4,
+        "hba1c_mmol_mol_available": false,
+        "hba1c_mmol_mol": null,
+        "random_glucose_mg_dl_available": false,
+        "random_glucose_mg_dl": null,
+        "random_glucose_mmol_l_available": false,
+        "random_glucose_mmol_l": null,
+        "any_diabetes_diagnosis_or_related_condition_any_time": false,
+        "self_reported_diabetes_any": false
+      },
+      "expected_debug_state": "active",
+      "expected_eligible_options": [
+        "ineligible"
+      ]
+    },
+    {
+      "id": "GOLDEN-PHEKB-T2D-UNKNOWN-001",
+      "model": "phekb_type2_diabetes_ehr_plus",
+      "facts": {
+        "type1_diabetes_any_time": false,
+        "t2d_icd_diagnosis_count": 0,
+        "any_diabetes_medication": false,
+        "outpatient_insulin_record": false,
+        "non_insulin_medication_before_insulin": false,
+        "non_insulin_diabetes_medication": false,
+        "self_reported_t2d": false,
+        "in_person_provider_visit_count": 1,
+        "glucose_measurement_count": 1,
+        "fasting_glucose_mg_dl_available": true,
+        "fasting_glucose_mg_dl": 90,
+        "fasting_glucose_mmol_l_available": false,
+        "fasting_glucose_mmol_l": null,
+        "hba1c_percent_available": true,
+        "hba1c_percent": 5.4,
+        "hba1c_mmol_mol_available": false,
+        "hba1c_mmol_mol": null,
+        "random_glucose_mg_dl_available": false,
+        "random_glucose_mg_dl": null,
+        "random_glucose_mmol_l_available": false,
+        "random_glucose_mmol_l": null,
+        "any_diabetes_diagnosis_or_related_condition_any_time": false,
+        "self_reported_diabetes_any": false
+      },
+      "expected_debug_state": "abstain",
+      "expected_eligible_options": []
+    }
+  ]
+}

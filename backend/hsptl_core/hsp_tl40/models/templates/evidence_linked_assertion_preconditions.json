@@ -1,0 +1,7 @@
+{
+  "id": "HSPTL-TEMPLATE-EVIDENCE-LINKED-1.0",
+  "type": "plan",
+  "title": "Evidence-linked assertion preconditions",
+  "preconditions": {"op": "and", "args": [{"op": "exists", "left": {"ref": "slots.assertion.text"}}, {"op": "exists", "left": {"ref": "slots.assertion.evidence_id"}}, {"op": "exists", "left": {"ref": "slots.assertion.appraisal_id"}}, {"op": "exists", "left": {"ref": "slots.assertion.source_span_id"}}, {"op": "eq", "left": {"ref": "facts.appraisal_decision"}, "right": "pass"}, {"op": "eq", "left": {"ref": "facts.rights_decision"}, "right": "permitted"}, {"op": "eq", "left": {"ref": "facts.source_span_hash_matches"}, "right": true}]},
+  "tasks": [{"id": "compose", "type": "action", "label": "Compose assertion after all lineage guards pass"}]
+}

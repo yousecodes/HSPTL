@@ -1,0 +1,236 @@
+{
+  "id": "HSPTL-APP-GRADE-DOMAINS-1.0",
+  "type": "plan",
+  "title": "GRADE domain appraisal — human review subset",
+  "metadata": {
+    "logic_language": "PROforma",
+    "fixture": true,
+    "review_mode": "human_adjudication",
+    "aggregate_certainty": false
+  },
+  "tasks": [
+    {
+      "id": "risk-of-bias",
+      "type": "decision",
+      "prompt": "Risk of bias",
+      "options": [
+        {
+          "id": "no_concern",
+          "label": "No serious concern",
+          "when": true
+        },
+        {
+          "id": "serious",
+          "label": "Serious concern",
+          "when": true
+        },
+        {
+          "id": "very_serious",
+          "label": "Very serious concern",
+          "when": true
+        },
+        {
+          "id": "not_assessed",
+          "label": "Not assessed / abstain",
+          "when": true
+        }
+      ]
+    },
+    {
+      "id": "inconsistency",
+      "type": "decision",
+      "prompt": "Inconsistency",
+      "options": [
+        {
+          "id": "no_concern",
+          "label": "No serious concern",
+          "when": true
+        },
+        {
+          "id": "serious",
+          "label": "Serious concern",
+          "when": true
+        },
+        {
+          "id": "very_serious",
+          "label": "Very serious concern",
+          "when": true
+        },
+        {
+          "id": "not_assessed",
+          "label": "Not assessed / abstain",
+          "when": true
+        }
+      ]
+    },
+    {
+      "id": "indirectness",
+      "type": "decision",
+      "prompt": "Indirectness",
+      "options": [
+        {
+          "id": "no_concern",
+          "label": "No serious concern",
+          "when": true
+        },
+        {
+          "id": "serious",
+          "label": "Serious concern",
+          "when": true
+        },
+        {
+          "id": "very_serious",
+          "label": "Very serious concern",
+          "when": true
+        },
+        {
+          "id": "not_assessed",
+          "label": "Not assessed / abstain",
+          "when": true
+        }
+      ]
+    },
+    {
+      "id": "imprecision",
+      "type": "decision",
+      "prompt": "Imprecision",
+      "options": [
+        {
+          "id": "no_concern",
+          "label": "No serious concern",
+          "when": true
+        },
+        {
+          "id": "serious",
+          "label": "Serious concern",
+          "when": true
+        },
+        {
+          "id": "very_serious",
+          "label": "Very serious concern",
+          "when": true
+        },
+        {
+          "id": "not_assessed",
+          "label": "Not assessed / abstain",
+          "when": true
+        }
+      ]
+    },
+    {
+      "id": "publication-bias",
+      "type": "decision",
+      "prompt": "Publication / reporting bias",
+      "options": [
+        {
+          "id": "no_concern",
+          "label": "No serious concern",
+          "when": true
+        },
+        {
+          "id": "serious",
+          "label": "Serious concern",
+          "when": true
+        },
+        {
+          "id": "very_serious",
+          "label": "Very serious concern",
+          "when": true
+        },
+        {
+          "id": "not_assessed",
+          "label": "Not assessed / abstain",
+          "when": true
+        }
+      ]
+    },
+    {
+      "id": "appraisal-rationale",
+      "type": "inquiry",
+      "prompt": "Record reviewer rationale, unresolved issues and any upgrade considerations.",
+      "response_key": "appraisal_rationale",
+      "required": true
+    },
+    {
+      "id": "ready-for-panel",
+      "type": "action",
+      "label": "Submit domain appraisals for human certainty panel",
+      "preconditions": {
+        "op": "and",
+        "args": [
+          {
+            "op": "exists",
+            "left": {
+              "ref": "answers.decision:risk-of-bias"
+            }
+          },
+          {
+            "op": "exists",
+            "left": {
+              "ref": "answers.decision:inconsistency"
+            }
+          },
+          {
+            "op": "exists",
+            "left": {
+              "ref": "answers.decision:indirectness"
+            }
+          },
+          {
+            "op": "exists",
+            "left": {
+              "ref": "answers.decision:imprecision"
+            }
+          },
+          {
+            "op": "exists",
+            "left": {
+              "ref": "answers.decision:publication-bias"
+            }
+          },
+          {
+            "op": "exists",
+            "left": {
+              "ref": "answers.appraisal_rationale"
+            }
+          },
+          {
+            "op": "neq",
+            "left": {
+              "ref": "answers.decision:risk-of-bias"
+            },
+            "right": "not_assessed"
+          },
+          {
+            "op": "neq",
+            "left": {
+              "ref": "answers.decision:inconsistency"
+            },
+            "right": "not_assessed"
+          },
+          {
+            "op": "neq",
+            "left": {
+              "ref": "answers.decision:indirectness"
+            },
+            "right": "not_assessed"
+          },
+          {
+            "op": "neq",
+            "left": {
+              "ref": "answers.decision:imprecision"
+            },
+            "right": "not_assessed"
+          },
+          {
+            "op": "neq",
+            "left": {
+              "ref": "answers.decision:publication-bias"
+            },
+            "right": "not_assessed"
+          }
+        ]
+      }
+    }
+  ]
+}

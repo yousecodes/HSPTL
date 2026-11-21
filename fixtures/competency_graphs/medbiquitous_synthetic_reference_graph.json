@@ -1,0 +1,45 @@
+{
+  "schema": "hsptl.reference-graph/1.0",
+  "fixture_only": true,
+  "source_format": "MedBiquitous XML",
+  "context": null,
+  "nodes": [
+    {
+      "id": "framework:root",
+      "kind": "framework",
+      "label": "competencyframework",
+      "description": "",
+      "source": "MedBiquitous Competency Framework XML"
+    },
+    {
+      "id": "med-comp-1",
+      "kind": "competency",
+      "label": "Observe supplied information",
+      "description": "",
+      "source": "MedBiquitous Competency Framework XML"
+    },
+    {
+      "id": "med-comp-2",
+      "kind": "competency",
+      "label": "Explain a source-based conclusion",
+      "description": "",
+      "source": "MedBiquitous Competency Framework XML"
+    }
+  ],
+  "edges": [
+    {
+      "source": "framework:root",
+      "predicate": "contains",
+      "target": "med-comp-1"
+    },
+    {
+      "source": "framework:root",
+      "predicate": "contains",
+      "target": "med-comp-2"
+    }
+  ],
+  "content_hash": "28df2792b28cb61126d72addb664c915f65c37fa253a7e8027fa37ae56377950",
+  "warnings": [
+    "Source XSD is documented as draft; verify the source schema revision and mapped relations before adoption."
+  ]
+}

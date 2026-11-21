@@ -1,0 +1,7 @@
+{
+  "id": "HSPTL-ROUTE-WORKSPACE-1.0",
+  "type": "plan",
+  "title": "Workspace route eligibility predicate",
+  "preconditions": {"op": "and", "args": [{"op": "exists", "left": {"ref": "facts.workspace"}}, {"op": "eq", "left": {"ref": "facts.object_is_canonical"}, "right": true}, {"op": "eq", "left": {"ref": "facts.projection_fresh"}, "right": true}, {"op": "eq", "left": {"ref": "facts.user_eligible"}, "right": true}]},
+  "tasks": [{"id": "route", "type": "action", "label": "Emit deterministic workspace route"}]
+}

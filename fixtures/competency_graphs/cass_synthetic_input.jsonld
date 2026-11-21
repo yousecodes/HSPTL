@@ -1,0 +1,33 @@
+{
+  "@context": {
+    "@vocab": "https://example.invalid/cass/"
+  },
+  "@graph": [
+    {
+      "@id": "urn:fixture:framework:1",
+      "@type": "cass:CompetencyFramework",
+      "name": "Synthetic reference framework",
+      "competencies": [
+        {
+          "@id": "urn:fixture:comp:1"
+        },
+        {
+          "@id": "urn:fixture:comp:2"
+        }
+      ]
+    },
+    {
+      "@id": "urn:fixture:comp:1",
+      "@type": "cass:Competency",
+      "name": "Observe supplied information"
+    },
+    {
+      "@id": "urn:fixture:comp:2",
+      "@type": "cass:Competency",
+      "name": "Explain a source-based conclusion",
+      "isChildOf": {
+        "@id": "urn:fixture:comp:1"
+      }
+    }
+  ]
+}

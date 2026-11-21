@@ -1,0 +1,16 @@
+HSPTL 6.0 — Practical Clinical Learning, Simplified
+
+PACKAGE CONTENTS
+- HSPTL_6.0_Practical_Clinical_Learning_Blueprint.docx: editable 28-page blueprint
+- HSPTL_6.0_Practical_Clinical_Learning_Blueprint.md: Markdown source
+- HSPTL-Reference-Monogram.svg: transparent vector master traced from the supplied reference photo
+- HSPTL-Reference-Monogram-transparent.png: transparent raster export
+- HSPTL-Reference-Monogram-Preview-Padded.png: presentation preview on the reference pale-blue field
+
+IMPORTANT STATUS NOTES
+- This is a research and implementation blueprint, not a claim that HSPTL 6.0 has been implemented.
+- The logo files are proposed brand assets. They have not yet been installed throughout the HSPTL application, favicon, React components or release package.
+- The project audit used HSPTL 5.1.0 source. Its backend suite passed 474 tests during the review. The frontend dependency-backed TypeScript build and production build were not verified in that review environment.
+- HSPTL remains an educational learning and simulation tool. Nothing in this blueprint establishes clinical validation, suitability for live care, or production institutional security readiness.
+
+Prepared 20 November 2026.

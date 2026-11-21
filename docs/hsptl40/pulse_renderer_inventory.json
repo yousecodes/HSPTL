@@ -1,0 +1,61 @@
+{
+  "schema": "hsptl.pulse-renderers/1.0",
+  "client": "one React application",
+  "provider_contract": [
+    "step",
+    "getState",
+    "applyAction"
+  ],
+  "renderers": [
+    {
+      "id": "PulseObservationTile",
+      "component": "frontend/src/components/hsptl40/PulsePanel.tsx",
+      "input": "one named observation from Pulse state",
+      "renders": [
+        "display or key",
+        "value or Unknown",
+        "unit",
+        "status"
+      ],
+      "clinical_interpretation": false
+    },
+    {
+      "id": "PulseTrend",
+      "component": "PulseTrend in PulsePanel.tsx",
+      "input": "optional numeric history array",
+      "renders": [
+        "SVG polyline scaled to supplied values"
+      ],
+      "thresholds": false
+    },
+    {
+      "id": "PulseUnavailableGrid",
+      "component": "PulsePanel.tsx",
+      "input": "connected=false",
+      "renders": [
+        "heart rate: Unknown",
+        "blood pressure: Unknown",
+        "respiratory rate: Unknown",
+        "oxygen saturation: Unknown"
+      ],
+      "fabricated_values": false
+    },
+    {
+      "id": "PulseActionRequest",
+      "component": "PulsePanel.tsx",
+      "input": "provider-defined action id",
+      "renders": [
+        "action request state",
+        "event id or abstention"
+      ],
+      "bypass_bridge": false
+    }
+  ],
+  "not_bundled": [
+    "physiological simulator",
+    "medical device driver",
+    "ECG waveform renderer",
+    "alarm engine",
+    "clinical normal-range thresholds"
+  ]
+}

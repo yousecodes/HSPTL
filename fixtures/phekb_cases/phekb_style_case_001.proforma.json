@@ -1,0 +1,139 @@
+{
+  "id": "phekb-fixture-synthetic-cohort-readiness",
+  "type": "plan",
+  "title": "Synthetic cohort readiness example",
+  "metadata": {
+    "fixture_only": true,
+    "source_family": "PheKB",
+    "source_ref": "PheKB phenotype algorithm structure; curator-normalized synthetic example",
+    "mapping_review_required": true
+  },
+  "tasks": [
+    {
+      "id": "criterion-dataset-present",
+      "type": "decision",
+      "prompt": "Required test dataset is available",
+      "options": [
+        {
+          "id": "satisfied",
+          "label": "Criterion satisfied",
+          "when": {
+            "op": "eq",
+            "left": {
+              "ref": "facts.dataset_ready"
+            },
+            "right": true
+          }
+        },
+        {
+          "id": "not_satisfied",
+          "label": "Criterion not satisfied",
+          "when": {
+            "op": "not",
+            "args": [
+              {
+                "op": "eq",
+                "left": {
+                  "ref": "facts.dataset_ready"
+                },
+                "right": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "criterion-dictionary-reviewed",
+      "type": "decision",
+      "prompt": "The test data dictionary has been reviewed",
+      "options": [
+        {
+          "id": "satisfied",
+          "label": "Criterion satisfied",
+          "when": {
+            "op": "eq",
+            "left": {
+              "ref": "facts.dictionary_reviewed"
+            },
+            "right": true
+          }
+        },
+        {
+          "id": "not_satisfied",
+          "label": "Criterion not satisfied",
+          "when": {
+            "op": "not",
+            "args": [
+              {
+                "op": "eq",
+                "left": {
+                  "ref": "facts.dictionary_reviewed"
+                },
+                "right": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "phenotype-eligibility",
+      "type": "decision",
+      "prompt": "Phenotype criteria result",
+      "options": [
+        {
+          "id": "eligible",
+          "label": "All configured criteria satisfy the reviewed phenotype definition",
+          "when": {
+            "op": "and",
+            "args": [
+              {
+                "op": "eq",
+                "left": {
+                  "ref": "answers.decision:criterion-dataset-present"
+                },
+                "right": "satisfied"
+              },
+              {
+                "op": "eq",
+                "left": {
+                  "ref": "answers.decision:criterion-dictionary-reviewed"
+                },
+                "right": "satisfied"
+              }
+            ]
+          }
+        },
+        {
+          "id": "not_eligible",
+          "label": "Phenotype criteria not satisfied",
+          "when": {
+            "op": "not",
+            "args": [
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "answers.decision:criterion-dataset-present"
+                    },
+                    "right": "satisfied"
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "answers.decision:criterion-dictionary-reviewed"
+                    },
+                    "right": "satisfied"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

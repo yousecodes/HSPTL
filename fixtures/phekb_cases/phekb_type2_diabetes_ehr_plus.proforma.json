@@ -1,0 +1,2163 @@
+{
+  "id": "phekb-t2d-ehr-plus-case-control-fixture",
+  "type": "plan",
+  "title": "PheKB-derived Type 2 Diabetes EHR+ case/control classification fixture",
+  "metadata": {
+    "fixture_only": true,
+    "source_family": "PheKB",
+    "source_ref": "https://phekb.org/sites/phenotype/files/Type%202%20Diabetes.pdf",
+    "source_algorithm": "t2d_dprism_ehr_plus_1 + universal_control_algorithm",
+    "mapping_review_required": true,
+    "patient_data": false,
+    "clinical_use": false,
+    "logic_version": "HSPTL-PROforma-Subset/1.0"
+  },
+  "tasks": [
+    {
+      "id": "t2d-case-control-classification",
+      "type": "decision",
+      "prompt": "Select the result produced by the PheKB-derived EHR+ test fixture",
+      "options": [
+        {
+          "id": "ineligible",
+          "label": "Excluded: age <25 years or Type 1 diabetes at any time",
+          "when": {
+            "op": "not",
+            "args": [
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "gte",
+                    "left": {
+                      "ref": "facts.age_at_latest_assessment_years"
+                    },
+                    "right": 25
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.type1_diabetes_any_time"
+                    },
+                    "right": false
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "conflicting_data",
+          "label": "Conflict: case and control predicates both true",
+          "when": {
+            "op": "and",
+            "args": [
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.age_at_latest_assessment_years"
+                        },
+                        "right": 25
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.type1_diabetes_any_time"
+                        },
+                        "right": false
+                      }
+                    ]
+                  },
+                  {
+                    "op": "or",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.t2d_icd_diagnosis_count"
+                                },
+                                "right": 1
+                              },
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.any_diabetes_medication"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "or",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.outpatient_insulin_record"
+                                    },
+                                    "right": false
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.non_insulin_medication_before_insulin"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 2
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.t2d_icd_diagnosis_count"
+                                },
+                                "right": 1
+                              },
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.any_diabetes_medication"
+                                },
+                                "right": false
+                              },
+                              {
+                                "op": "or",
+                                "args": [
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl"
+                                            },
+                                            "right": 126
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l"
+                                            },
+                                            "right": 7.0
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent"
+                                            },
+                                            "right": 6.5
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol"
+                                            },
+                                            "right": 48
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.t2d_icd_diagnosis_count"
+                                },
+                                "right": 0
+                              },
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.non_insulin_diabetes_medication"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "or",
+                                "args": [
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl"
+                                            },
+                                            "right": 126
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l"
+                                            },
+                                            "right": 7.0
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent"
+                                            },
+                                            "right": 6.5
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol"
+                                            },
+                                            "right": 48
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.self_reported_t2d"
+                        },
+                        "right": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.age_at_latest_assessment_years"
+                        },
+                        "right": 25
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.type1_diabetes_any_time"
+                        },
+                        "right": false
+                      }
+                    ]
+                  },
+                  {
+                    "op": "gte",
+                    "left": {
+                      "ref": "facts.in_person_provider_visit_count"
+                    },
+                    "right": 1
+                  },
+                  {
+                    "op": "gte",
+                    "left": {
+                      "ref": "facts.glucose_measurement_count"
+                    },
+                    "right": 1
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.random_glucose_mg_dl_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.random_glucose_mg_dl"
+                                },
+                                "right": 200
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.random_glucose_mmol_l_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.random_glucose_mmol_l"
+                                },
+                                "right": 11.1
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mg_dl_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mg_dl"
+                                },
+                                "right": 126
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mmol_l_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mmol_l"
+                                },
+                                "right": 7.0
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.hba1c_percent_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.hba1c_percent"
+                                },
+                                "right": 6.5
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.hba1c_mmol_mol_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.hba1c_mmol_mol"
+                                },
+                                "right": 48
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.any_diabetes_diagnosis_or_related_condition_any_time"
+                    },
+                    "right": false
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.any_diabetes_medication"
+                    },
+                    "right": false
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.self_reported_diabetes_any"
+                    },
+                    "right": false
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "case",
+          "label": "EHR+ Type 2 diabetes case predicate is satisfied",
+          "when": {
+            "op": "and",
+            "args": [
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.age_at_latest_assessment_years"
+                        },
+                        "right": 25
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.type1_diabetes_any_time"
+                        },
+                        "right": false
+                      }
+                    ]
+                  },
+                  {
+                    "op": "or",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.t2d_icd_diagnosis_count"
+                                },
+                                "right": 1
+                              },
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.any_diabetes_medication"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "or",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.outpatient_insulin_record"
+                                    },
+                                    "right": false
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.non_insulin_medication_before_insulin"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 2
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.t2d_icd_diagnosis_count"
+                                },
+                                "right": 1
+                              },
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.any_diabetes_medication"
+                                },
+                                "right": false
+                              },
+                              {
+                                "op": "or",
+                                "args": [
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl"
+                                            },
+                                            "right": 126
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l"
+                                            },
+                                            "right": 7.0
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent"
+                                            },
+                                            "right": 6.5
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol"
+                                            },
+                                            "right": 48
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.t2d_icd_diagnosis_count"
+                                },
+                                "right": 0
+                              },
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.non_insulin_diabetes_medication"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "or",
+                                "args": [
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mg_dl"
+                                            },
+                                            "right": 126
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.fasting_glucose_mmol_l"
+                                            },
+                                            "right": 7.0
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_percent"
+                                            },
+                                            "right": 6.5
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "and",
+                                        "args": [
+                                          {
+                                            "op": "eq",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol_available"
+                                            },
+                                            "right": true
+                                          },
+                                          {
+                                            "op": "gte",
+                                            "left": {
+                                              "ref": "facts.hba1c_mmol_mol"
+                                            },
+                                            "right": 48
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.self_reported_t2d"
+                        },
+                        "right": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "op": "not",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "and",
+                        "args": [
+                          {
+                            "op": "gte",
+                            "left": {
+                              "ref": "facts.age_at_latest_assessment_years"
+                            },
+                            "right": 25
+                          },
+                          {
+                            "op": "eq",
+                            "left": {
+                              "ref": "facts.type1_diabetes_any_time"
+                            },
+                            "right": false
+                          }
+                        ]
+                      },
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.in_person_provider_visit_count"
+                        },
+                        "right": 1
+                      },
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.glucose_measurement_count"
+                        },
+                        "right": 1
+                      },
+                      {
+                        "op": "not",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mg_dl_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mg_dl"
+                                    },
+                                    "right": 200
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mmol_l_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mmol_l"
+                                    },
+                                    "right": 11.1
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "not",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mg_dl_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mg_dl"
+                                    },
+                                    "right": 126
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mmol_l_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mmol_l"
+                                    },
+                                    "right": 7.0
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "not",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.hba1c_percent_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.hba1c_percent"
+                                    },
+                                    "right": 6.5
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.hba1c_mmol_mol_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.hba1c_mmol_mol"
+                                    },
+                                    "right": 48
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.any_diabetes_diagnosis_or_related_condition_any_time"
+                        },
+                        "right": false
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.any_diabetes_medication"
+                        },
+                        "right": false
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.self_reported_diabetes_any"
+                        },
+                        "right": false
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "control",
+          "label": "Universal control predicate is satisfied",
+          "when": {
+            "op": "and",
+            "args": [
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.age_at_latest_assessment_years"
+                        },
+                        "right": 25
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.type1_diabetes_any_time"
+                        },
+                        "right": false
+                      }
+                    ]
+                  },
+                  {
+                    "op": "gte",
+                    "left": {
+                      "ref": "facts.in_person_provider_visit_count"
+                    },
+                    "right": 1
+                  },
+                  {
+                    "op": "gte",
+                    "left": {
+                      "ref": "facts.glucose_measurement_count"
+                    },
+                    "right": 1
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.random_glucose_mg_dl_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.random_glucose_mg_dl"
+                                },
+                                "right": 200
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.random_glucose_mmol_l_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.random_glucose_mmol_l"
+                                },
+                                "right": 11.1
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mg_dl_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mg_dl"
+                                },
+                                "right": 126
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mmol_l_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.fasting_glucose_mmol_l"
+                                },
+                                "right": 7.0
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.hba1c_percent_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.hba1c_percent"
+                                },
+                                "right": 6.5
+                              }
+                            ]
+                          },
+                          {
+                            "op": "and",
+                            "args": [
+                              {
+                                "op": "eq",
+                                "left": {
+                                  "ref": "facts.hba1c_mmol_mol_available"
+                                },
+                                "right": true
+                              },
+                              {
+                                "op": "gte",
+                                "left": {
+                                  "ref": "facts.hba1c_mmol_mol"
+                                },
+                                "right": 48
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.any_diabetes_diagnosis_or_related_condition_any_time"
+                    },
+                    "right": false
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.any_diabetes_medication"
+                    },
+                    "right": false
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.self_reported_diabetes_any"
+                    },
+                    "right": false
+                  }
+                ]
+              },
+              {
+                "op": "not",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "and",
+                        "args": [
+                          {
+                            "op": "gte",
+                            "left": {
+                              "ref": "facts.age_at_latest_assessment_years"
+                            },
+                            "right": 25
+                          },
+                          {
+                            "op": "eq",
+                            "left": {
+                              "ref": "facts.type1_diabetes_any_time"
+                            },
+                            "right": false
+                          }
+                        ]
+                      },
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 1
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.any_diabetes_medication"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "eq",
+                                        "left": {
+                                          "ref": "facts.outpatient_insulin_record"
+                                        },
+                                        "right": false
+                                      },
+                                      {
+                                        "op": "eq",
+                                        "left": {
+                                          "ref": "facts.non_insulin_medication_before_insulin"
+                                        },
+                                        "right": true
+                                      },
+                                      {
+                                        "op": "gte",
+                                        "left": {
+                                          "ref": "facts.t2d_icd_diagnosis_count"
+                                        },
+                                        "right": 2
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 1
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.any_diabetes_medication"
+                                    },
+                                    "right": false
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl"
+                                                },
+                                                "right": 126
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l"
+                                                },
+                                                "right": 7.0
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent"
+                                                },
+                                                "right": 6.5
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol"
+                                                },
+                                                "right": 48
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 0
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.non_insulin_diabetes_medication"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl"
+                                                },
+                                                "right": 126
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l"
+                                                },
+                                                "right": 7.0
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent"
+                                                },
+                                                "right": 6.5
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol"
+                                                },
+                                                "right": 48
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "op": "eq",
+                            "left": {
+                              "ref": "facts.self_reported_t2d"
+                            },
+                            "right": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "neither",
+          "label": "Neither case nor control predicate is satisfied",
+          "when": {
+            "op": "and",
+            "args": [
+              {
+                "op": "not",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "and",
+                        "args": [
+                          {
+                            "op": "gte",
+                            "left": {
+                              "ref": "facts.age_at_latest_assessment_years"
+                            },
+                            "right": 25
+                          },
+                          {
+                            "op": "eq",
+                            "left": {
+                              "ref": "facts.type1_diabetes_any_time"
+                            },
+                            "right": false
+                          }
+                        ]
+                      },
+                      {
+                        "op": "or",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 1
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.any_diabetes_medication"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "eq",
+                                        "left": {
+                                          "ref": "facts.outpatient_insulin_record"
+                                        },
+                                        "right": false
+                                      },
+                                      {
+                                        "op": "eq",
+                                        "left": {
+                                          "ref": "facts.non_insulin_medication_before_insulin"
+                                        },
+                                        "right": true
+                                      },
+                                      {
+                                        "op": "gte",
+                                        "left": {
+                                          "ref": "facts.t2d_icd_diagnosis_count"
+                                        },
+                                        "right": 2
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 1
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.any_diabetes_medication"
+                                    },
+                                    "right": false
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl"
+                                                },
+                                                "right": 126
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l"
+                                                },
+                                                "right": 7.0
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent"
+                                                },
+                                                "right": 6.5
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol"
+                                                },
+                                                "right": 48
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.t2d_icd_diagnosis_count"
+                                    },
+                                    "right": 0
+                                  },
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.non_insulin_diabetes_medication"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "or",
+                                    "args": [
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mg_dl"
+                                                },
+                                                "right": 126
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.fasting_glucose_mmol_l"
+                                                },
+                                                "right": 7.0
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "op": "or",
+                                        "args": [
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_percent"
+                                                },
+                                                "right": 6.5
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "op": "and",
+                                            "args": [
+                                              {
+                                                "op": "eq",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol_available"
+                                                },
+                                                "right": true
+                                              },
+                                              {
+                                                "op": "gte",
+                                                "left": {
+                                                  "ref": "facts.hba1c_mmol_mol"
+                                                },
+                                                "right": 48
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "op": "eq",
+                            "left": {
+                              "ref": "facts.self_reported_t2d"
+                            },
+                            "right": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "op": "not",
+                "args": [
+                  {
+                    "op": "and",
+                    "args": [
+                      {
+                        "op": "and",
+                        "args": [
+                          {
+                            "op": "gte",
+                            "left": {
+                              "ref": "facts.age_at_latest_assessment_years"
+                            },
+                            "right": 25
+                          },
+                          {
+                            "op": "eq",
+                            "left": {
+                              "ref": "facts.type1_diabetes_any_time"
+                            },
+                            "right": false
+                          }
+                        ]
+                      },
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.in_person_provider_visit_count"
+                        },
+                        "right": 1
+                      },
+                      {
+                        "op": "gte",
+                        "left": {
+                          "ref": "facts.glucose_measurement_count"
+                        },
+                        "right": 1
+                      },
+                      {
+                        "op": "not",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mg_dl_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mg_dl"
+                                    },
+                                    "right": 200
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mmol_l_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.random_glucose_mmol_l"
+                                    },
+                                    "right": 11.1
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "not",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mg_dl_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mg_dl"
+                                    },
+                                    "right": 126
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mmol_l_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.fasting_glucose_mmol_l"
+                                    },
+                                    "right": 7.0
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "not",
+                        "args": [
+                          {
+                            "op": "or",
+                            "args": [
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.hba1c_percent_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.hba1c_percent"
+                                    },
+                                    "right": 6.5
+                                  }
+                                ]
+                              },
+                              {
+                                "op": "and",
+                                "args": [
+                                  {
+                                    "op": "eq",
+                                    "left": {
+                                      "ref": "facts.hba1c_mmol_mol_available"
+                                    },
+                                    "right": true
+                                  },
+                                  {
+                                    "op": "gte",
+                                    "left": {
+                                      "ref": "facts.hba1c_mmol_mol"
+                                    },
+                                    "right": 48
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.any_diabetes_diagnosis_or_related_condition_any_time"
+                        },
+                        "right": false
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.any_diabetes_medication"
+                        },
+                        "right": false
+                      },
+                      {
+                        "op": "eq",
+                        "left": {
+                          "ref": "facts.self_reported_diabetes_any"
+                        },
+                        "right": false
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "gte",
+                    "left": {
+                      "ref": "facts.age_at_latest_assessment_years"
+                    },
+                    "right": 25
+                  },
+                  {
+                    "op": "eq",
+                    "left": {
+                      "ref": "facts.type1_diabetes_any_time"
+                    },
+                    "right": false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

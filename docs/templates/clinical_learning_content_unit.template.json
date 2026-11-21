@@ -1,0 +1,43 @@
+{
+  "unit_id": "replace-with-unique-id",
+  "title": "Replace with a concise learning-unit title",
+  "specialty": "Specify the clinical specialty",
+  "level": "Foundational | Intermediate | Advanced",
+  "minutes": 15,
+  "tags": ["topic", "skill", "setting"],
+  "objectives": [
+    "Use an observable verb and describe one measurable learning outcome.",
+    "Describe a second measurable learning outcome."
+  ],
+  "case": {
+    "patient": "Synthetic learner case; do not use patient-identifiable data",
+    "setting": "Specify a teaching setting",
+    "presentation": "Describe the fictional presentation and initial information.",
+    "history": "State which history is available and which elements remain unknown.",
+    "observations": "Fictional observations with units and relevant context.",
+    "revealed_findings": ["A finding disclosed only when the learner requests or performs the relevant task."],
+    "task": "State the learner's task and any escalation boundary."
+  },
+  "teaching_points": ["A concise, source-aware teaching point."],
+  "pitfalls": ["A common reasoning or process pitfall."],
+  "quiz": [
+    {
+      "stem": "Write a single-best-answer question with a clearly scoped stem.",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_index": 0,
+      "rationale": "Explain why the keyed answer is best and why the alternatives are less appropriate."
+    }
+  ],
+  "viva": [
+    {"prompt": "Write an oral examination prompt.", "key_points": ["Expected reasoning point."]}
+  ],
+  "osce": {
+    "title": "Station title",
+    "candidate_instructions": "Candidate-facing task and time allocation.",
+    "checklist": ["Observable action that an examiner can assess."],
+    "critical_errors": ["Clearly defined critical error requiring independent educator review."],
+    "time_seconds": 420
+  },
+  "debrief": ["What evidence changed your thinking?"],
+  "source_ids": ["source_id_from_pack_sources"]
+}
