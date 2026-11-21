@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HSPTL — Clinical Learning Hospital
 
 HSPTL is a local-first clinical learning environment built around **structured study, case reasoning, simulation, skills practice, assessment and debrief**. The learner experience opens with a learning dashboard and a populated starter library; the original Clinic, Rounds, Lab, Ward, Exam Hall and Portfolio capabilities remain available as in-process modules and routes. HSPTL is an educational product, not a healthcare provider or clinical decision-support system.
@@ -212,3 +213,6 @@ For continuous UCKS feed, connector and provider-reachability checks, start `run
 ## HSPTL 5.1.0
 
 This release adds source reliability appraisal, learner-specific case practice recommendations, formative lottery submissions, and safer Windows install/start launchers. See `RELEASE_STATUS.md` for scope and limitations.
+=======
+# HSPTL
+>>>>>>> 4dcc48cc794d4e4e7ea0e723e6ff49a30cce5a78
