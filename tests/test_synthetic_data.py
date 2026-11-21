@@ -842,3 +842,16 @@ def test_safe_artifact_name_rejects_dot_names():
         assert name not in {".", ".."}
         assert "/" not in name and "\\" not in name
     assert safe_artifact_name("patient-01.json") == "patient-01.json"
+
+
+def test_synthetic_scheduler_starts_by_default_and_stops_cleanly(monkeypatch):
+    from backend.hsptl_core.synthetic_data.scheduler import SyntheticScheduler
+    class Factory:
+        def run_due_schedules(self):
+            return []
+    monkeypatch.delenv("HSPTL_DISABLE_BACKGROUND_WORKERS", raising=False)
+    scheduler = SyntheticScheduler(Factory(), tick_seconds=5)
+    thread = scheduler.start()
+    assert thread is not None and thread.is_alive()
+    scheduler.stop()
+    assert not thread.is_alive()

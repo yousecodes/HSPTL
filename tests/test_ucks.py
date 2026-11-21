@@ -796,4 +796,5 @@ def test_external_source_automation_syncs_mocked_providers_without_per_record_ap
     assert state["clinical_validity_assessed_automatically"] is False
     assert state["reuse_rights_granted_automatically"] is False
     assert state["auto_approve"] is False
-    assert state["auto_publish"] is False
+    assert state["auto_publish"] is True
+    assert state["publication_status"] == "provisional"

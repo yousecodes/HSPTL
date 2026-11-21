@@ -52,7 +52,7 @@ claimed only when a pinned HL7 validator runs.
 Generation is automated. Clinical approval is not. Generated populations are synthetic, do not
 represent any real population and must not inform clinical decisions.
 
-Queued jobs run automatically when `HSPTL_ENABLE_WORKER=1`; otherwise use **Run now** in the workspace.
+Queued jobs, scheduled synthetic-data work, and managed source refreshes run automatically with the local application. Set `HSPTL_DISABLE_BACKGROUND_WORKERS=1` only for tests or deliberate maintenance; **Run now** remains available for immediate execution.
 
 ## HSPTL 4.0.2 architecture
 

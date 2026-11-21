@@ -78,7 +78,7 @@ def status():
                              "clinical_knowledge_harvester_profiles", "provider_health_monitoring", "ucks_governance_monitoring",
                              "built_in_api_key_free_external_source_profiles", "local_background_external_source_scheduler",
                              "startup_and_manual_external_source_refresh", "external_source_automation_status_and_audit"],
-            "limitations": ["model_based_embeddings_and_vector_retrieval_disabled_in_model_free_4_0", "built_in_external_sources_use_bounded_daily_metadata_queries_not_full_historical_backfill", "administrator_can_disable_managed_source_or_pause_its_schedule", "provider_pagination_does_not_guarantee_stable_snapshot_or_exhaustive_historical_backfill", "provider_updated_date_watermarks_not_yet_implemented",
+            "limitations": ["model_based_embeddings_and_vector_retrieval_disabled_in_model_free_4_0", "managed_sources_walk_up_to_10_pages_per_scheduled_run_and_resume_provider_cursors_until_the_query_is_exhausted", "provider_pagination_does_not_guarantee_a_stable_snapshot_while_the_remote_corpus_is_changing", "provider_updated_date_watermarks_and_full_corpus_reconciliation_are_not_yet_implemented", "administrator_can_disable_managed_source_or_pause_its_schedule",
                             "ocr_for_scanned_pdfs_not_configured", 
                             "entity_extraction_is_curated_lexicon_proposal_only_not_clinical_nlp",
                             "terminology_catalogue_is_empty_until_licensed_source_data_is_imported",
@@ -86,7 +86,7 @@ def status():
                             "no_live_terminology_server_connection_or_automatic_code_lookup_is_configured",
                             "terminology_expansion_requires_approved_reusable_catalogue_concepts_and_reviewed_graph_mappings",
                             "relationship_extraction_is_narrow_explicit_pattern_matching_not_clinical_nlp",
-                            "negated_or_uncertain_relationships_are_not_promoted_to_graph_edges", "evidence_appraisal_does_not_generate_a_quality_score_or_grade_certainty", "assertion_disagreement_detection_is_not_contradiction_detection", "publisher_change_signals_require_human_confirmation", "age_flags_do_not_prove_guideline_is_outdated", "external_connector_records_remain_harvested_pending_rights_and_clinical_review", "full_text_acquisition_is_opt_in_and_restricted_to_allow_listed_cc_licences", "connector_updates_create_immutable_revisions_and_remain_harvested", "broad_harvester_profiles_initially_use_europe_pmc", "provider_health_probes_measure_reachability_not_data_completeness"]}
+                            "negated_or_uncertain_relationships_are_not_promoted_to_graph_edges", "evidence_appraisal_does_not_generate_a_quality_score_or_grade_certainty", "assertion_disagreement_detection_is_not_contradiction_detection", "explicit_pubmed_and_europe_pmc_retraction_designations_are_auto_quarantined_but_other_publisher_change_signals_require_confirmation", "age_flags_do_not_prove_guideline_is_outdated", "managed_external_connector_records_are_machine_screened_not_clinically_validated_and_rights_remain_separate", "full_text_acquisition_is_opt_in_and_restricted_to_allow_listed_cc_licences", "connector_updates_create_immutable_revisions_and_remain_harvested", "broad_harvester_profiles_initially_use_europe_pmc", "provider_health_probes_measure_reachability_not_data_completeness"]}
 
 
 @router.get("/stats")

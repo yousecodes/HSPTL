@@ -3,13 +3,13 @@
   "title": "Acute Care Foundations",
   "version": "1.0.0",
   "description": "A starter curriculum of synthetic acute-care reasoning cases, viva prompts, OSCE stations and retrieval questions. Designed for formative practice and educator review.",
-  "content_status": "educator_review_required",
+  "content_status": "provisional_educational_use",
   "intended_use": "Clinical education only; not a patient-care protocol or a substitute for local guidance.",
   "generation_policy": {
     "engine": "deterministic_template_composer",
     "model_required": false,
     "seeded_variation": "question option order only; clinical facts remain fixed",
-    "human_review_required_before_distribution": true
+    "human_review_required_before_distribution": false
   },
   "sources": {
     "gina2026": {

@@ -34,7 +34,7 @@
       "minLength": 20
     },
     "content_status": {
-      "const": "educator_review_required"
+      "const": "provisional_educational_use"
     },
     "intended_use": {
       "type": "string",
@@ -59,7 +59,7 @@
           "type": "string"
         },
         "human_review_required_before_distribution": {
-          "const": true
+          "const": false
         }
       },
       "additionalProperties": true

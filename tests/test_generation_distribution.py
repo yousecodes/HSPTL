@@ -49,15 +49,16 @@ def test_workspace_scripts_are_distinct_and_config_is_scoped(tmp_path):
     assert saved['config']['display_name']=='Acute Clinic'
     assert e.get_customization('ward')['config']=={}
 
-def test_retrieval_cache_generation_verifies_verbatim_source_spans_and_review_gate(tmp_path):
+def test_retrieval_cache_generation_is_provisionally_published_without_preapproval(tmp_path):
     e,repo=engine(tmp_path)
     a=e.generate(workspace='clinic',kind='case_report',title='Asthma case synthesis',source_documents=['d1'],ucks_repo=repo)
-    assert a['status']=='draft' and a['body']['generation_mode']=='retrieval_cache_extractive'
+    assert a['status']=='provisional' and a['body']['generation_mode']=='retrieval_cache_extractive'
+    assert a['body']['publication']['human_preapproval_required'] is False
     assert a['body']['validation']['valid'] is True
     citation=a['body']['sections'][0]['claims'][0]['citations'][0]
     assert citation['start_offset']==0 and citation['end_offset']>0
-    with pytest.raises(ValueError,match='approved'):
-        e.route(a['id'],'clinic','reports')
+    delivered=e.route(a['id'],'clinic','reports')
+    assert delivered['status']=='delivered'
     approved=e.review(a['id'],'approved','Clinical Reviewer')
     assert approved['status']=='approved'
 
@@ -90,7 +91,7 @@ def test_distribution_adapter_delivers_to_native_workspace_content_index(tmp_pat
     assert delivered['adapter']=='tagged_content_index'
     with store.transaction() as c:
         row=c.execute('SELECT workspace,source_status,title FROM tagged_content_items WHERE item_id=?',(delivered['destination_id'],)).fetchone()
-    assert tuple(row)==('exam','approved','Acute asthma pearl')
+    assert tuple(row)==('exam','unreviewed','Acute asthma pearl')
 
 def test_distribution_adapter_maps_all_six_workspaces(tmp_path):
     store=StudyStore(tmp_path/'all-workspaces.db')
@@ -100,7 +101,7 @@ def test_distribution_adapter_maps_all_six_workspaces(tmp_path):
         result=adapter.deliver({'id':f'gen-{i}','kind':kind,'title':f'Artifact {i}','workspace':workspace,'body':{'sections':[]}},'default')
         with store.transaction() as c:
             row=c.execute('SELECT content_type,workspace,source_status FROM tagged_content_items WHERE item_id=?',(result['destination_id'],)).fetchone()
-        assert tuple(row)==(content_type,target,'approved')
+        assert tuple(row)==(content_type,target,'unreviewed')
 
 def test_question_set_adapter_populates_unreviewed_exam_bank(tmp_path):
     store=StudyStore(tmp_path/'exam-bank.db')

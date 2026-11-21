@@ -10,7 +10,7 @@ def test_pack_is_populated_valid_and_model_free():
     assert catalog["unit_count"] == 8
     assert catalog["question_count"] == 24
     assert catalog["generation_policy"]["model_required"] is False
-    assert catalog["content_status"] == "educator_review_required"
+    assert catalog["content_status"] == "provisional_educational_use"
 
 
 def test_all_output_types_build_for_every_unit():
@@ -20,7 +20,7 @@ def test_all_output_types_build_for_every_unit():
         for kind in kinds:
             spec = factory.build(unit["unit_id"], kind, seed=17)
             assert spec["body"]["validation"]["valid"] is True
-            assert spec["body"]["content_status"] == "educator_review_required"
+            assert spec["body"]["content_status"] == "provisional_educational_use"
             assert spec["workspace"]
             if kind == "question_set":
                 assert len(spec["body"]["assessment_items"]) == 3
@@ -47,7 +47,7 @@ def test_structured_draft_uses_existing_review_and_distribution_lifecycle(tmp_pa
         body=spec["body"], source_refs=spec["source_refs"],
         template_version=spec["template_version"],
     )
-    assert artifact["status"] == "draft"
+    assert artifact["status"] == "provisional"
     assert artifact["body"]["generation_mode"] == "deterministic_template_composer"
     duplicate = engine.create_structured_draft(
         workspace=spec["workspace"], kind=spec["kind"], title=spec["title"],
@@ -74,7 +74,7 @@ def test_content_factory_api_catalog_generate_and_batch():
             "unit_id": "acute-chest-pain-01", "kind": "question_set", "seed": 8,
         })
         assert generated.status_code == 201
-        assert generated.json()["status"] == "draft"
+        assert generated.json()["status"] == "provisional"
         batch = client.post("/api/content-factory/batch", json={
             "unit_ids": ["acute-chest-pain-01", "acute-asthma-01"],
             "kinds": ["topic_summary", "viva_set"], "seed": 8,
@@ -147,8 +147,9 @@ def test_startup_prepares_all_workspace_drafts_and_refresh_is_idempotent():
         assert payload["unit_count"] == 8
         assert payload["draft_count"] == 8 * 9
         assert set(payload["workspace_counts"]) == {"clinic", "exam_hall", "rounds", "lab", "ward", "simulation"}
-        assert payload["review_required"] is True
+        assert payload["review_required"] is False
         assert payload["auto_approved"] is False
-        assert payload["auto_published"] is False
+        assert payload["auto_published"] is True
         assert payload["created_count"] == 0
         assert payload["reused_count"] == payload["draft_count"]
+        assert payload["published_count"] == payload["draft_count"]

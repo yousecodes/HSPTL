@@ -8,6 +8,7 @@ from .exams import ExamRepository, normalise_question_row
 WORKSPACE_TARGETS = {
     "clinic": "conference", "rounds": "rounds", "lab": "lab",
     "ward": "on_call", "exam_hall": "exam", "portfolio": "data_tools",
+    "simulation": "simulation",
 }
 CONTENT_TYPES = {
     "case_report": "case_report", "case_debrief": "debrief", "conference_brief": "case",
@@ -17,6 +18,7 @@ CONTENT_TYPES = {
     "progression_record": "case", "pearl": "pearl", "topic_summary": "topic",
     "lecture_outline": "lecture", "question_set": "exam_question",
     "progress_snapshot": "case", "review_packet": "case", "development_plan": "topic",
+    "simulation_brief": "simulation",
 }
 
 class WorkspaceDistributionAdapter:
@@ -72,7 +74,7 @@ class WorkspaceDistributionAdapter:
         result=self.tags.register_content({
             "content_type":content_type,"content_id":artifact["id"],"title":artifact["title"],
             "workspace":workspace,"summary":f"[{section}] {summary}"[:1200],
-            "source_status":"approved","content_url":f"/api/generation/artifacts/{artifact['id']}",
+            "source_status":"unreviewed","content_url":f"/api/generation/artifacts/{artifact['id']}",
             "tags":tag_ids,"assigned_by":"ucks_generation_adapter",
         })
         return {"destination_id":result["item_id"],"destination_refs":assessment_question_ids,"adapter":"tagged_content_index+exam_question_bank" if assessment_question_ids else "tagged_content_index"}

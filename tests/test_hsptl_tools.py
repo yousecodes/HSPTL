@@ -479,3 +479,23 @@ def test_check_port_rejects_invalid_override_without_probing(monkeypatch, capsys
     captured = capsys.readouterr()
     assert captured.out == ""
     assert "HSPTL_PORT" in captured.err
+
+
+def test_background_job_worker_starts_by_default_and_stops_cleanly(tmp_path, monkeypatch):
+    from backend.hsptl_core.jobs import start_worker_thread, stop_worker_thread
+    store = StudyStore(tmp_path / "background-worker.sqlite3")
+    runner = JobRunner(store)
+    monkeypatch.delenv("HSPTL_DISABLE_BACKGROUND_WORKERS", raising=False)
+    thread = start_worker_thread(runner)
+    assert thread is not None and thread.is_alive()
+    assert start_worker_thread(runner) is thread
+    stop_worker_thread(runner)
+    assert not thread.is_alive()
+
+
+def test_background_workers_can_be_disabled_explicitly(tmp_path, monkeypatch):
+    from backend.hsptl_core.jobs import start_worker_thread
+    store = StudyStore(tmp_path / "disabled-worker.sqlite3")
+    runner = JobRunner(store)
+    monkeypatch.setenv("HSPTL_DISABLE_BACKGROUND_WORKERS", "1")
+    assert start_worker_thread(runner) is None

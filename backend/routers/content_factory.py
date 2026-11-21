@@ -6,7 +6,7 @@ import hashlib, hmac, json, os, uuid, threading
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel, Field
 
-from ..runtime import PATHS
+from ..runtime import PATHS, STORE
 from ..hsptl_core.deterministic_intelligence.engine import DeterministicIntelligenceEngine
 from ..hsptl_core.hsp_tl40.kernel import EventKernel
 from ..hsptl_core.hsp_tl40.router import Router as LearningRouter
@@ -15,10 +15,12 @@ from ..hsptl_core.hsp_tl40.proforma import evaluate as evaluate_proforma
 from ..hsptl_core.content_factory import ContentFactory, ContentPackError, DEFAULT_OUTPUT_TYPES
 from ..hsptl_core.generation_distribution import GenerationDistribution
 from ..hsptl_core.unified_content import UnifiedContentPipeline
+from ..hsptl_core.workspace_distribution import WorkspaceDistributionAdapter
 
 router = APIRouter(prefix="/api/content-factory", tags=["content-factory"])
 FACTORY = ContentFactory()
 ENGINE = GenerationDistribution(PATHS["database"])
+DISTRIBUTION_ADAPTER = WorkspaceDistributionAdapter(STORE)
 _EVENT_ENGINE = DeterministicIntelligenceEngine(PATHS["database"])
 KERNEL = EventKernel(_EVENT_ENGINE)
 _ROUTER = LearningRouter(KERNEL, Guards(KERNEL, _EVENT_ENGINE), _EVENT_ENGINE)
@@ -98,7 +100,7 @@ def _refresh_installed_content(*, reload_packs: bool) -> dict[str, Any]:
             # Construct first. A malformed pack must not replace the last valid factory.
             refreshed_factory = ContentFactory()
             FACTORY = refreshed_factory
-        return UnifiedContentPipeline(FACTORY, ENGINE).refresh()
+        return UnifiedContentPipeline(FACTORY, ENGINE, DISTRIBUTION_ADAPTER).refresh()
 
 
 def ensure_startup_content() -> dict[str, Any]:
@@ -160,8 +162,10 @@ def factory_status() -> dict[str, Any]:
         "unit_count": catalog["unit_count"],
         "retrieval_question_count": catalog["question_count"],
         "output_types": list(DEFAULT_OUTPUT_TYPES),
-        "review_required": True,
-        "auto_publish": False,
+        "review_required": False,
+        "auto_publish": True,
+        "publication_status": "provisional",
+        "clinical_validation": "not_assessed",
         "version": "1.0.0",
     }
 
@@ -183,11 +187,16 @@ def refresh_all_content() -> dict[str, Any]:
 def generate_content(payload: GenerateRequest) -> dict[str, Any]:
     try:
         spec = FACTORY.build(payload.unit_id, payload.kind, payload.seed)
-        return ENGINE.create_structured_draft(
+        artifact = ENGINE.create_structured_draft(
             workspace=spec["workspace"], kind=spec["kind"], title=spec["title"],
             body=spec["body"], source_refs=spec["source_refs"],
             template_version=spec["template_version"], audit_event="generated_by_content_factory",
         )
+        route = ENGINE.route(artifact["id"], spec["workspace"],
+                             "automatically generated learning resources", adapter=DISTRIBUTION_ADAPTER)
+        artifact["publication"] = {"status": "provisional", "route_status": route.get("status"),
+                                   "human_preapproval_required": False, "clinical_validation": "not_assessed"}
+        return artifact
     except ContentPackError as exc:
         raise HTTPException(422, str(exc)) from exc
     except ValueError as exc:
@@ -205,13 +214,17 @@ def generate_batch(payload: BatchRequest) -> dict[str, Any]:
                 body=spec["body"], source_refs=spec["source_refs"],
                 template_version=spec["template_version"], audit_event="generated_by_content_factory_batch",
             )
+            route = ENGINE.route(artifact["id"], spec["workspace"],
+                                 "automatically generated learning resources", adapter=DISTRIBUTION_ADAPTER)
             items.append({"id": artifact["id"], "title": artifact["title"], "kind": artifact["kind"],
                           "workspace": artifact["workspace"], "status": artifact["status"],
+                          "publication": "provisional", "route_status": route.get("status"),
                           "unit_id": artifact["body"].get("unit_id"), "content_hash": artifact["content_hash"]})
         unique_ids = {item["id"] for item in items}
-        return {"requested": len(specs), "draft_count": len(unique_ids), "items": items,
-                "status": "drafts_created_or_reused", "auto_approved": False,
-                "message": "All outputs are drafts. Expert review is required before distribution."}
+        return {"requested": len(specs), "draft_count": len(unique_ids), "provisional_count": len(unique_ids),
+                "published_count": sum(1 for item in items if item.get("route_status") == "delivered"),
+                "items": items, "status": "provisionally_published", "auto_approved": False,
+                "message": "Eligible outputs were automatically routed for supervised educational use; clinical validation remains separate."}
     except ContentPackError as exc:
         raise HTTPException(422, str(exc)) from exc
     except ValueError as exc:

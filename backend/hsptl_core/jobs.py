@@ -1,7 +1,7 @@
 """Durable job execution: ownership, leases, heartbeat, backoff, cancel, checkpoints.
 
-A 'queued' row with no worker is a UX bug. The worker is opt-in
-(HSPTL_ENABLE_WORKER=1) so the default local install stays single-process.
+The local application starts its worker automatically. Set
+HSPTL_DISABLE_BACKGROUND_WORKERS=1 only for tests or deliberate maintenance.
 Paused jobs are never claimed; the existing pause/resume API keeps working.
 """
 from __future__ import annotations
@@ -34,6 +34,8 @@ class JobRunner:
         self.store = store
         self.owner = f"worker-{uuid.uuid4().hex[:8]}"
         self.handlers: dict[str, Callable[..., dict]] = {}
+        self._worker_stop = threading.Event()
+        self._worker_thread: threading.Thread | None = None
 
     def register(self, kind: str, handler) -> None:
         self.handlers[kind] = handler
@@ -155,19 +157,29 @@ class JobRunner:
 
 
 def start_worker_thread(runner: JobRunner) -> threading.Thread | None:
-    if os.environ.get("HSPTL_ENABLE_WORKER", "") != "1":
+    if os.environ.get("HSPTL_DISABLE_BACKGROUND_WORKERS", "") == "1":
         return None
+    if runner._worker_thread is not None and runner._worker_thread.is_alive():
+        return runner._worker_thread
+    runner._worker_stop.clear()
 
     def loop() -> None:
-        while True:
+        while not runner._worker_stop.is_set():
             try:
                 runner.reap_expired()
                 if not runner.run_once():
-                    time.sleep(1.0)
+                    runner._worker_stop.wait(1.0)
             except Exception:  # noqa: BLE001
                 logger.exception("Worker loop error")
-                time.sleep(2.0)
+                runner._worker_stop.wait(2.0)
 
     thread = threading.Thread(target=loop, daemon=True, name="hsptl-jobs")
+    runner._worker_thread = thread
     thread.start()
     return thread
+
+
+def stop_worker_thread(runner: JobRunner, timeout: float = 2.0) -> None:
+    runner._worker_stop.set()
+    if runner._worker_thread is not None and runner._worker_thread.is_alive():
+        runner._worker_thread.join(timeout=max(0.0, timeout))

@@ -94,7 +94,7 @@ class SyntheticDataFactory:
         java_ok, java_detail = detect_java(settings.java_path)
         jar = Path(settings.synthea_jar).expanduser() if settings.synthea_jar else None
         validator = Path(settings.validator_jar).expanduser() if settings.validator_jar else None
-        worker_enabled = os.environ.get("HSPTL_ENABLE_WORKER", "") == "1"
+        worker_enabled = os.environ.get("HSPTL_DISABLE_BACKGROUND_WORKERS", "") != "1"
         return {
             "generator": {
                 "configured": bool(jar and jar.is_file()),
@@ -110,10 +110,9 @@ class SyntheticDataFactory:
             },
             "worker": {
                 "enabled": worker_enabled,
-                "note": ("The local worker processes queued jobs automatically."
+                "note": ("The local worker and synthetic scheduler start automatically with HSPTL."
                          if worker_enabled else
-                         "The worker is disabled. Set HSPTL_ENABLE_WORKER=1 or start the app "
-                         "with the standard launcher to process queued jobs."),
+                         "Background workers are explicitly disabled by HSPTL_DISABLE_BACKGROUND_WORKERS=1."),
             },
             "storage": {
                 "root": str(self.storage_root),

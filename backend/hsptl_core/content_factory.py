@@ -1,8 +1,8 @@
 """Deterministic, template-driven clinical learning content factory.
 
 All source learning material is authored in versioned JSON packs. The factory
-creates reproducible draft derivatives; it never uses an AI model, invents
-clinical measurements, approves content, or publishes without review.
+creates reproducible derivatives for provisional supervised educational use;
+it never uses an AI model or invents clinical measurements.
 """
 from __future__ import annotations
 
@@ -161,7 +161,7 @@ class ContentFactory:
                     "quiz_count": len(unit["quiz"]),
                     "source_count": len(unit.get("source_ids", [])),
                     "pack_id": pack_id, "pack_version": pack["version"],
-                    "content_status": "educator_review_required",
+                    "content_status": "provisional_educational_use",
                     "available_outputs": list(DEFAULT_OUTPUT_TYPES),
                 })
         return {
@@ -207,7 +207,7 @@ class ContentFactory:
             "content_pack_version": pack["version"],
             "unit_id": unit_id,
             "seed": int(seed),
-            "content_status": "educator_review_required",
+            "content_status": "provisional_educational_use",
             "clinical_use": "not_for_patient_care",
             "review_policy": "human_expert_approval_required_before_distribution",
             "variation_policy": "only question option ordering may vary; clinical scenario facts are immutable",

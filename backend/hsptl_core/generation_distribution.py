@@ -1,7 +1,8 @@
-"""Governed generation and distribution layer over UCKS.
+"""Automated provisional generation and distribution layer over UCKS.
 
-Generation creates versioned, source-linked drafts. Distribution routes only
-approved artifacts to workspace destinations; no automatic clinical publishing.
+Eligible artefacts are published provisionally after deterministic integrity,
+citation and rights checks. Provisional publication is not clinical validation.
+Human review remains available as a post-publication quality-improvement path.
 """
 from __future__ import annotations
 import hashlib, json, sqlite3, uuid, re, math
@@ -212,7 +213,7 @@ class GenerationDistribution:
     payload=json.loads(cached['artifact_json']); c.execute('UPDATE generation_cache SET hit_count=hit_count+1,last_used_at=? WHERE cache_key=?',(self._now(),cache_key))
     # Reuse content but create a distinct auditable draft record.
     body=payload['body']; refs=payload['refs']; aid='gen_'+uuid.uuid4().hex; now=self._now()
-    c.execute('INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(aid,kind,title,workspace,'draft',json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),hashlib.sha256(cached['artifact_json'].encode()).hexdigest(),now,now))
+    c.execute('INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(aid,kind,title,workspace,'provisional',json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),hashlib.sha256(cached['artifact_json'].encode()).hexdigest(),now,now))
     c.execute('INSERT INTO generation_audit VALUES(?,?,?,?,?)',('audit_'+uuid.uuid4().hex,aid,'generated_from_cache',json.dumps({'cache_key':cache_key,'retrieved_chunks':len(ranked)}),now))
     cached_artifact_id=aid
   if cached_artifact_id: return self.get_artifact(cached_artifact_id)
@@ -220,20 +221,20 @@ class GenerationDistribution:
   body=self._validate_output(kind,output,ranked)
   refs=[]
   for did in source_documents:
-   doc=ucks_repo.get_document(did); refs.append({'document_id':did,'title':doc['title'],'source_url':doc.get('source_url',''),'review_status':doc.get('review_status','harvested'),'licence':doc.get('licence','')})
-  body.update({'purpose':WORKSPACE_SCRIPTS[workspace]['purpose'],'workflow':WORKSPACE_SCRIPTS[workspace]['sequence'],'generation_mode':'retrieval_cache_extractive','retrieval':{'method':'bm25_lite','ranked_chunks':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'score':x.get('retrieval_score',0)} for x in ranked]},'source_spans':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'source_url':x.get('source_url',''),'licence':x.get('licence','')} for x in ranked]})
+   doc=ucks_repo.get_document(did); refs.append({'document_id':did,'current_version':int(doc.get('current_version',1)),'content_hash':doc.get('content_hash',''),'title':doc['title'],'source_url':doc.get('source_url',''),'review_status':doc.get('review_status','harvested'),'licence':doc.get('licence','')})
+  body.update({'publication':{'status':'provisional','clinical_validation':'not_assessed','educational_use':'supervised_educational_use','human_preapproval_required':False},'purpose':WORKSPACE_SCRIPTS[workspace]['purpose'],'workflow':WORKSPACE_SCRIPTS[workspace]['sequence'],'generation_mode':'retrieval_cache_extractive','retrieval':{'method':'bm25_lite','ranked_chunks':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'score':x.get('retrieval_score',0)} for x in ranked]},'source_spans':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'source_url':x.get('source_url',''),'licence':x.get('licence','')} for x in ranked]})
   payload=json.dumps({'kind':kind,'title':title,'workspace':workspace,'body':body,'refs':refs},sort_keys=True,ensure_ascii=False)
   aid='gen_'+uuid.uuid4().hex; now=self._now()
   with self.connect() as c:
-   c.execute('INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(aid,kind,title,workspace,'draft',json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),hashlib.sha256(payload.encode()).hexdigest(),now,now))
+   c.execute('INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(aid,kind,title,workspace,'provisional',json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),hashlib.sha256(payload.encode()).hexdigest(),now,now))
    c.execute('INSERT OR REPLACE INTO generation_cache(cache_key,artifact_json,created_at,last_used_at,hit_count) VALUES(?,?,?,?,0)',(cache_key,payload,now,now))
    c.execute('INSERT INTO generation_audit VALUES(?,?,?,?,?)',('audit_'+uuid.uuid4().hex,aid,'generated',json.dumps({'mode':'retrieval_cache_extractive','cache_key':cache_key,'retrieved_chunks':len(ranked),'validation':body['validation']}),now))
   return self.get_artifact(aid)
  def create_structured_draft(self, *, workspace:str, kind:str, title:str, body:dict[str,Any], source_refs:list[dict[str,Any]]|None=None, template_version:int=1, audit_event:str="generated_structured_draft"):
-  """Persist a validated structured draft into the shared governance lifecycle.
+  """Persist a structurally validated artefact as provisionally publishable.
 
-  This is used by embedded deterministic content recipes as well as source-
-  extractive generation. It does not approve or distribute the artifact.
+  Provisional means available for supervised educational use, not clinically
+  validated. Rights and integrity safeguards remain mandatory.
   """
   if workspace not in WORKSPACE_SCRIPTS: raise ValueError("Unknown workspace")
   if kind not in WORKSPACE_SCRIPTS[workspace]["outputs"]: raise ValueError("Output kind is not enabled for this workspace")
@@ -251,7 +252,7 @@ class GenerationDistribution:
     c.execute("INSERT INTO generation_audit VALUES(?,?,?,?,?)",("audit_"+uuid.uuid4().hex,aid,"generation_deduplicated",json.dumps({"content_hash":content_hash,"generator":body.get("generation_mode","structured")}),now))
     return self.get_artifact(aid)
    aid="gen_"+uuid.uuid4().hex
-   c.execute("INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,template_version,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",(aid,kind,title.strip(),workspace,"draft",json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),int(template_version),content_hash,now,now))
+   c.execute("INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,template_version,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",(aid,kind,title.strip(),workspace,"provisional",json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),int(template_version),content_hash,now,now))
    c.execute("INSERT INTO generation_audit VALUES(?,?,?,?,?)",("audit_"+uuid.uuid4().hex,aid,audit_event,json.dumps({"content_hash":content_hash,"generation_mode":body.get("generation_mode","structured"),"unit_id":body.get("unit_id"),"content_pack_id":body.get("content_pack_id"),"seed":body.get("seed")}),now))
   return self.get_artifact(aid)
 
@@ -268,14 +269,14 @@ class GenerationDistribution:
   if not reviewer.strip(): raise ValueError('Reviewer is required')
   now=self._now()
   with self.connect() as c:
-   cur=c.execute('UPDATE generated_artifacts SET status=?,reviewer=?,reviewed_at=?,updated_at=? WHERE id=? AND status IN (\'draft\',\'needs_revision\')',(decision,reviewer.strip()[:120],now,now,aid))
+   cur=c.execute('UPDATE generated_artifacts SET status=?,reviewer=?,reviewed_at=?,updated_at=? WHERE id=? AND status IN (\'draft\',\'provisional\',\'needs_revision\')',(decision,reviewer.strip()[:120],now,now,aid))
    if not cur.rowcount: raise ValueError('Artifact not found or no longer reviewable')
   with self.connect() as c: c.execute('INSERT INTO generation_audit VALUES(?,?,?,?,?)',('audit_'+uuid.uuid4().hex,aid,'reviewed',json.dumps({'decision':decision,'reviewer':reviewer.strip()[:120]}),now))
   return self.get_artifact(aid)
  def route(self, aid:str, workspace:str, section:str, *, adapter=None):
   art=self.get_artifact(aid)
   if not art: raise ValueError('Artifact not found')
-  if art['status']!='approved': raise ValueError('Only approved artifacts can be distributed')
+  if art['status'] not in {'provisional','approved'}: raise ValueError('Only provisionally published or approved artefacts can be distributed')
   if workspace not in WORKSPACE_SCRIPTS: raise ValueError('Unknown destination workspace')
   if not section.strip() or len(section)>80: raise ValueError('Valid destination section required')
   if workspace != art['workspace']: raise ValueError('Cross-workspace routing is disabled; generate for the destination workspace')

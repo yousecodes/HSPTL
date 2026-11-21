@@ -83,7 +83,7 @@ def _europe_pmc(query: str, limit: int, session) -> list[dict[str, Any]]:
                     "body": body, "content_type": "systematic_review" if "systematic review" in _text(r.get("pubTypeList")).lower() else "other",
                     "publication_date": _date(r.get("firstPublicationDate") or r.get("pubYear")),
                     "url": f"https://europepmc.org/article/MED/{pmid}" if pmid else (f"https://europepmc.org/articles/{pmcid}" if pmcid else (f"https://doi.org/{doi}" if doi else "")),
-                    "licence": _text(r.get("license")), "provenance": {"connector": "Europe PMC", "pmid": pmid, "pmcid": pmcid, "doi": doi, "is_open_access": _is_true_flag(r.get("isOpenAccess")), "rights_review_required": True}})
+                    "licence": _text(r.get("license")), "provenance": {"connector": "Europe PMC", "pmid": pmid, "pmcid": pmcid, "doi": doi, "publication_types": _text(r.get("pubTypeList")), "publisher_lifecycle_signal": ("retracted" if "retracted publication" in _text(r.get("pubTypeList")).casefold() else ""), "is_open_access": _is_true_flag(r.get("isOpenAccess")), "rights_review_required": True}})
     return out
 
 
@@ -214,7 +214,7 @@ def _normalise_europe_pmc(data: dict[str, Any]) -> list[dict[str, Any]]:
             "body": body, "content_type": "systematic_review" if "systematic review" in _text(r.get("pubTypeList")).lower() else "other",
             "publication_date": _date(r.get("firstPublicationDate") or r.get("pubYear")),
             "url": f"https://europepmc.org/article/MED/{pmid}" if pmid else (f"https://europepmc.org/articles/{pmcid}" if pmcid else (f"https://doi.org/{doi}" if doi else "")),
-            "licence": _text(r.get("license")), "provenance": {"connector": "Europe PMC", "pmid": pmid, "pmcid": pmcid, "doi": doi, "is_open_access": _is_true_flag(r.get("isOpenAccess")), "rights_review_required": True}})
+            "licence": _text(r.get("license")), "provenance": {"connector": "Europe PMC", "pmid": pmid, "pmcid": pmcid, "doi": doi, "publication_types": _text(r.get("pubTypeList")), "publisher_lifecycle_signal": ("retracted" if "retracted publication" in _text(r.get("pubTypeList")).casefold() else ""), "is_open_access": _is_true_flag(r.get("isOpenAccess")), "rights_review_required": True}})
     return out
 
 
@@ -236,9 +236,14 @@ def _pubmed_page(query: str, limit: int, session, cursor: str = "") -> dict[str,
             abstract = " ".join(_text(" ".join(x.itertext())) for x in article.findall(".//Abstract/AbstractText"))
             date = _text(article.findtext(".//PubDate/Year") or article.findtext(".//PubDate/MedlineDate"))
             body = f"# {title}\n\n## Abstract\n{abstract}" if abstract else f"# {title}\n\nBibliographic metadata record; abstract not supplied by source."
+            publication_types = [ _text(" ".join(node.itertext())) for node in article.findall(".//PublicationTypeList/PublicationType") ]
+            pub_types_text = " ".join(publication_types).casefold()
             records.append({"external_id": f"PMID:{pmid}", "title": title, "body": body, "content_type": "other",
                 "publication_date": _date(date), "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/", "licence": "",
-                "provenance": {"connector": "NCBI PubMed E-utilities", "pmid": pmid, "rights_review_required": True}})
+                "provenance": {"connector": "NCBI PubMed E-utilities", "pmid": pmid,
+                    "publication_types": publication_types,
+                    "publisher_lifecycle_signal": ("retracted" if "retracted publication" in pub_types_text else ""),
+                    "rights_review_required": True}})
     next_offset = offset + len(ids)
     complete = not ids or next_offset >= total
     return {"records": records, "next_cursor": "" if complete else str(next_offset), "total_records": total, "complete": complete}
@@ -481,7 +486,7 @@ def _automated_screen_record(record: dict[str, Any], connector: str) -> dict[str
 
 
 def sync_connector(repo, source_id: str, query: str, limit: int = 25, *, include_full_text: bool = False,
-                   session=requests) -> dict[str, Any]:
+                   max_pages_per_run: int = 1, session=requests) -> dict[str, Any]:
     source = repo.get_source(source_id)
     if not source:
         raise ValueError("Unknown UCKS source")
@@ -502,65 +507,85 @@ def sync_connector(repo, source_id: str, query: str, limit: int = 25, *, include
     run_id = f"run_{int(time.time() * 1000)}_{source_id[-8:]}"
     started_at = datetime.now(timezone.utc).isoformat()
     started = time.monotonic()
-    records_seen = added = skipped = 0
+    records_seen = added = skipped = pages_completed = 0
+    records: list[dict[str, Any]] = []
+    page: dict[str, Any] = {"records": [], "next_cursor": "", "total_records": 0, "complete": True}
     outcome, error = "succeeded", ""
     try:
         checkpoint = get_connector_checkpoint(repo, source_id, query)
-        # Preserve compatibility with registered test/custom fetch adapters; production connectors use native pagination.
-        if _FETCHERS.get(connector) is not _DEFAULT_FETCHERS[connector]:
-            records = _FETCHERS[connector](query.strip(), limit, session)
-            page = {"records": records, "next_cursor": "", "total_records": len(records), "complete": True}
-        else:
-            page = _PAGE_FETCHERS[connector](query.strip(), limit, session, (checkpoint or {}).get("cursor", ""))
-            records = page["records"]
-        records_seen = len(records)
-        for record in records:
-            screening = _automated_screen_record(record, connector) if managed_automatic_import else {
-                "status": "harvested", "passed": True, "clinical_validity_assessed": False,
-                "reuse_permission_granted": False, "human_approval_required_for_import": False,
-            }
-            if managed_automatic_import and not screening["passed"]:
-                skipped += 1
-                continue
-            body = record["body"]
-            fulltext_meta: dict[str, Any] = {"full_text_status": "not_requested"}
-            if include_full_text and connector == "europe_pmc":
-                full_body, fulltext_meta = _europe_pmc_fulltext(record, session)
-                if full_body:
-                    body = full_body
-            provenance = {**record["provenance"], **fulltext_meta, "query": query,
-                "imported_at": datetime.now(timezone.utc).isoformat(),
-                "automated_screening": screening,
-                "clinical_review_required_for_patient_care_or_clinical_validation": True,
-                "licence_review_required_for_reuse": True,
-                "connector_metadata_only": connector == "crossref"}
-            # Same source identifier + changed body creates an immutable revision, not a duplicate document.
-            with repo.store.transaction() as conn:
-                existing = conn.execute("SELECT id FROM ucks_documents WHERE source_id=? AND external_id=? ORDER BY updated_at DESC LIMIT 1",
-                                        (source_id, record["external_id"])).fetchone()
-            if existing:
-                current = repo.get_document(existing["id"])
-                if current and current.get("content_hash") != hashlib.sha256(body.encode("utf-8")).hexdigest():
-                    merged = {**current.get("provenance", {}), **provenance, "previous_version": current.get("current_version")}
-                    repo.revise_document(existing["id"], title=record["title"], body=body, provenance=merged)
-                    added += 1
-                if managed_automatic_import:
-                    # Idempotently migrate pre-existing harvested records, but never
-                    # upgrade clinical validation or an explicit rejection.
-                    with repo.store.transaction() as conn:
-                        conn.execute("""UPDATE ucks_documents SET review_status='machine_screened'
-                            WHERE id=? AND review_status IN ('harvested','machine_screened')""",
-                            (existing["id"],))
-                _index_record_identifiers(repo, existing["id"], source_id, record)
-                continue
-            result = repo.ingest_document(source_id=source_id, title=record["title"], body=body,
-                content_type=record["content_type"], external_id=record["external_id"],
-                publication_date=record["publication_date"], source_url=record["url"],
-                licence=record["licence"], provenance=provenance,
-                review_status=imported_review_status)
-            added += int(result.get("created", False))
-            if result.get("id"):
-                _index_record_identifiers(repo, result["id"], source_id, record)
+        custom_fetcher = _FETCHERS.get(connector) is not _DEFAULT_FETCHERS[connector]
+        page_budget = 1 if custom_fetcher else max(1, min(int(max_pages_per_run), 100))
+        cursor = (checkpoint or {}).get("cursor", "")
+        seen_cursors: set[str] = set()
+        for _page_number in range(page_budget):
+            if custom_fetcher:
+                page_records = _FETCHERS[connector](query.strip(), limit, session)
+                page = {"records": page_records, "next_cursor": "", "total_records": len(page_records), "complete": True}
+            else:
+                page = _PAGE_FETCHERS[connector](query.strip(), limit, session, cursor)
+                page_records = page.get("records", [])
+            pages_completed += 1
+            records_seen += len(page_records)
+            records.extend(page_records)
+            for record in page_records:
+                screening = _automated_screen_record(record, connector) if managed_automatic_import else {
+                    "status": "harvested", "passed": True, "clinical_validity_assessed": False,
+                    "reuse_permission_granted": False, "human_approval_required_for_import": False,
+                }
+                if managed_automatic_import and not screening["passed"]:
+                    skipped += 1
+                    continue
+                body = record["body"]
+                fulltext_meta: dict[str, Any] = {"full_text_status": "not_requested"}
+                if include_full_text and connector == "europe_pmc":
+                    full_body, fulltext_meta = _europe_pmc_fulltext(record, session)
+                    if full_body:
+                        body = full_body
+                provenance = {**record["provenance"], **fulltext_meta, "query": query,
+                    "imported_at": datetime.now(timezone.utc).isoformat(),
+                    "automated_screening": screening,
+                    "clinical_review_required_for_patient_care_or_clinical_validation": True,
+                    "licence_review_required_for_reuse": True,
+                    "connector_metadata_only": connector == "crossref"}
+                # Same source identifier + changed body creates an immutable revision, not a duplicate document.
+                with repo.store.transaction() as conn:
+                    existing = conn.execute("SELECT id FROM ucks_documents WHERE source_id=? AND external_id=? ORDER BY updated_at DESC LIMIT 1",
+                                            (source_id, record["external_id"])).fetchone()
+                if existing:
+                    current = repo.get_document(existing["id"])
+                    if current and current.get("content_hash") != hashlib.sha256(body.encode("utf-8")).hexdigest():
+                        merged = {**current.get("provenance", {}), **provenance, "previous_version": current.get("current_version")}
+                        repo.revise_document(existing["id"], title=record["title"], body=body, provenance=merged)
+                        added += 1
+                    if managed_automatic_import:
+                        # Idempotently migrate pre-existing harvested records, but never
+                        # upgrade clinical validation or an explicit rejection.
+                        with repo.store.transaction() as conn:
+                            conn.execute("""UPDATE ucks_documents SET review_status='machine_screened'
+                                WHERE id=? AND review_status IN ('harvested','machine_screened')""",
+                                (existing["id"],))
+                    _index_record_identifiers(repo, existing["id"], source_id, record)
+                    if str(record.get("provenance", {}).get("publisher_lifecycle_signal", "")).casefold() == "retracted":
+                        repo.set_lifecycle_state(existing["id"], "retracted")
+                    continue
+                result = repo.ingest_document(source_id=source_id, title=record["title"], body=body,
+                    content_type=record["content_type"], external_id=record["external_id"],
+                    publication_date=record["publication_date"], source_url=record["url"],
+                    licence=record["licence"], provenance=provenance,
+                    review_status=imported_review_status)
+                added += int(result.get("created", False))
+                if result.get("id"):
+                    _index_record_identifiers(repo, result["id"], source_id, record)
+                    if str(record.get("provenance", {}).get("publisher_lifecycle_signal", "")).casefold() == "retracted":
+                        repo.set_lifecycle_state(result["id"], "retracted")
+            if page.get("complete", True) or not page.get("next_cursor"):
+                break
+            next_cursor = str(page.get("next_cursor", ""))
+            if next_cursor == cursor or next_cursor in seen_cursors:
+                raise RuntimeError("Provider pagination cursor did not advance")
+            seen_cursors.add(cursor)
+            cursor = next_cursor
+
     except Exception as exc:
         outcome, error = "failed", type(exc).__name__
         raise
@@ -584,10 +609,10 @@ def sync_connector(repo, source_id: str, query: str, limit: int = 25, *, include
                 records_seen=ucks_connector_checkpoints.records_seen+excluded.records_seen,
                 records_added=ucks_connector_checkpoints.records_added+excluded.records_added,
                 last_external_id=excluded.last_external_id,last_success=excluded.last_success,updated_at=excluded.updated_at,
-                total_records=excluded.total_records,pages_completed=ucks_connector_checkpoints.pages_completed+1,
+                total_records=excluded.total_records,pages_completed=ucks_connector_checkpoints.pages_completed+excluded.pages_completed,
                 pagination_complete=excluded.pagination_complete,page_size=excluded.page_size,last_page_at=excluded.last_page_at""",
                 (source_id,query_hash,connector,page.get("next_cursor", ""),records_seen,added,last_id,now_checkpoint,now_checkpoint,
-                 int(page.get("total_records", 0)),1,int(bool(page.get("complete", True))),limit,now_checkpoint))
+                 int(page.get("total_records", 0)),pages_completed,int(bool(page.get("complete", True))),limit,now_checkpoint))
     return {"run_id": run_id, "source_id": source_id, "connector": connector,
             "records_seen": records_seen, "records_added": added, "records_skipped_by_screen": skipped,
             "checkpoint": get_connector_checkpoint(repo, source_id, query),
@@ -595,7 +620,8 @@ def sync_connector(repo, source_id: str, query: str, limit: int = 25, *, include
             "review_status": imported_review_status, "full_text_requested": bool(include_full_text),
             "human_approval_required_for_import": False,
             "pagination": {"total_records": int(page.get("total_records", records_seen)),
-                "page_records": records_seen, "next_cursor_available": bool(page.get("next_cursor")),
+                "page_records": records_seen, "pages_completed_this_run": pages_completed,
+                "next_cursor_available": bool(page.get("next_cursor")),
                 "complete": bool(page.get("complete", True)), "provider_cursor_type":
                     {"europe_pmc": "cursorMark", "pubmed": "retstart offset", "crossref": "offset", "clinicaltrials_gov": "nextPageToken"}[connector]},
             "full_text_licence_policy": "CC0/CC-BY/CC-BY-SA allow-list; others metadata/abstract only"}
@@ -696,7 +722,8 @@ def run_due_connectors(repo, *, limit: int = 20) -> dict[str, Any]:
             from .external_source_automation import expand_query
             query = expand_query(job["query_text"])
             result = sync_connector(repo, sid, query, job["result_limit"],
-                                    include_full_text=bool(job["include_full_text"]))
+                                    include_full_text=bool(job["include_full_text"]),
+                                    max_pages_per_run=10)
             complete_connector_schedule(repo, sid, success=True)
             results.append({"source_id": sid, "status": "succeeded", **result})
         except Exception as exc:

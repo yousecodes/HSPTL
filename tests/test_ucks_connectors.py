@@ -313,3 +313,63 @@ def test_identifier_normalisation_rejects_invalid_identifiers():
     assert _normalise_identifier("pmcid", "PMC123") == ("pmcid", "PMC123")
     assert _normalise_identifier("nct", "nct01234567") == ("nct", "NCT01234567")
     assert _normalise_identifier("pmid", "not-a-pmid") is None
+
+
+def test_managed_sync_walks_multiple_provider_pages_per_automation_tick(tmp_path, monkeypatch):
+    from backend.hsptl_core.ucks import UCKSRepository
+    from backend.hsptl_core.store import StudyStore
+    import backend.hsptl_core.ucks_connectors as connectors
+
+    repo = UCKSRepository(StudyStore(tmp_path / "multi-page.sqlite3"))
+    source = repo.register_source(name="Paged Crossref", source_type="external_import",
+        locator="https://api.crossref.org", config={"connector": "crossref", "automation_profile": "test"})
+
+    def record(identifier):
+        return {"external_id": f"DOI:{identifier}", "title": identifier,
+            "body": f"# {identifier}\n\nMetadata", "content_type": "other",
+            "publication_date": "2025", "url": f"https://doi.org/{identifier}",
+            "licence": "", "provenance": {"connector": "Crossref"}}
+
+    pages = [
+        {"records": [record("10.1/a")], "next_cursor": "cursor-1", "total_records": 3, "complete": False},
+        {"records": [record("10.1/b")], "next_cursor": "cursor-2", "total_records": 3, "complete": False},
+        {"records": [record("10.1/c")], "next_cursor": "", "total_records": 3, "complete": True},
+    ]
+    cursors = []
+
+    def fetch(query, limit, session, cursor=""):
+        cursors.append(cursor)
+        return pages[len(cursors) - 1]
+
+    monkeypatch.setitem(connectors._PAGE_FETCHERS, "crossref", fetch)
+    result = connectors.sync_connector(repo, source["id"], "historical query", max_pages_per_run=10)
+    checkpoint = connectors.get_connector_checkpoint(repo, source["id"], "historical query")
+
+    assert result["records_seen"] == 3
+    assert result["records_added"] == 3
+    assert result["pagination"]["pages_completed_this_run"] == 3
+    assert result["pagination"]["complete"] is True
+    assert cursors == ["", "cursor-1", "cursor-2"]
+    assert checkpoint["pages_completed"] == 3
+    assert checkpoint["pagination_complete"] == 1
+
+
+def test_explicit_pubmed_retraction_signal_quarantines_imported_record(tmp_path, monkeypatch):
+    from backend.hsptl_core.ucks import UCKSRepository
+    from backend.hsptl_core.store import StudyStore
+    import backend.hsptl_core.ucks_connectors as connectors
+
+    repo = UCKSRepository(StudyStore(tmp_path / "provider-retraction.sqlite3"))
+    source = repo.register_source(name="Managed PubMed", source_type="external_import",
+        locator="https://eutils.ncbi.nlm.nih.gov", config={"connector": "pubmed", "automation_profile": "test"})
+    record = {"external_id": "PMID:999", "title": "Retracted paper", "body": "# Retracted paper\n\nAbstract",
+        "content_type": "other", "publication_date": "2025", "url": "https://pubmed.ncbi.nlm.nih.gov/999/",
+        "licence": "", "provenance": {"connector": "NCBI PubMed E-utilities",
+            "publisher_lifecycle_signal": "retracted", "publication_types": ["Retracted Publication"]}}
+    monkeypatch.setitem(connectors._PAGE_FETCHERS, "pubmed", lambda q, n, session, cursor="": {
+        "records": [record], "next_cursor": "", "total_records": 1, "complete": True})
+
+    connectors.sync_connector(repo, source["id"], "retraction query")
+    document = repo.search("Retracted paper", limit=1)[0]
+    stored = repo.get_document(document["document_id"])
+    assert stored["lifecycle_state"] == "retracted"

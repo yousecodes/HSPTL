@@ -2,9 +2,8 @@
 
 No external cron, no cloud scheduler, no separate daemon. One daemon thread
 wakes on a fixed interval, queues any due schedule, and lets the existing job
-runner execute it. It is started from the FastAPI lifespan and only when the
-local worker is enabled (``HSPTL_ENABLE_WORKER=1``); the default single-process
-install keeps running jobs only when the user asks.
+runner execute it. It starts automatically with the local application; set
+``HSPTL_DISABLE_BACKGROUND_WORKERS=1`` only for tests or maintenance.
 """
 from __future__ import annotations
 
@@ -25,7 +24,7 @@ class SyntheticScheduler:
         self._thread: threading.Thread | None = None
 
     def start(self) -> threading.Thread | None:
-        if os.environ.get("HSPTL_ENABLE_WORKER", "") != "1":
+        if os.environ.get("HSPTL_DISABLE_BACKGROUND_WORKERS", "") == "1":
             return None
         if self._thread is not None and self._thread.is_alive():
             return self._thread
@@ -37,6 +36,8 @@ class SyntheticScheduler:
 
     def stop(self) -> None:
         self._stop.set()
+        if self._thread is not None and self._thread.is_alive():
+            self._thread.join(timeout=2)
 
     def _loop(self) -> None:
         while not self._stop.wait(self.tick_seconds):

@@ -45,7 +45,13 @@ def get_workspace_customization(workspace:str):
  return ENGINE.get_customization(workspace)
 @router.post('/generation/artifacts',status_code=201)
 def generate_artifact(payload:GenerateRequest):
- try:return ENGINE.generate(workspace=payload.workspace,kind=payload.kind,title=payload.title,source_documents=payload.source_documents,ucks_repo=UCKS)
+ try:
+  artifact=ENGINE.generate(workspace=payload.workspace,kind=payload.kind,title=payload.title,source_documents=payload.source_documents,ucks_repo=UCKS)
+  route=ENGINE.route(artifact['id'],payload.workspace,'auto-generated learning resources',adapter=ADAPTER)
+  artifact['publication']={'status':'provisional','route_status':route.get('status','delivered'),
+                           'human_preapproval_required':False,
+                           'clinical_validation':'not_assessed'}
+  return artifact
  except ValueError as e: raise HTTPException(422,str(e)) from e
  except RuntimeError as e: raise HTTPException(503,str(e)) from e
 @router.get('/generation/artifacts')

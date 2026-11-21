@@ -105,7 +105,7 @@ async def lifespan(_: FastAPI):
     lottery_seed = _CASE_LOTTERY.seed_curated_cases()
     logger.info("Daily case lottery curriculum seed: %s new, %s already present",
                 lottery_seed["created"], lottery_seed["already_present"])
-    from .hsptl_core.jobs import start_worker_thread
+    from .hsptl_core.jobs import start_worker_thread, stop_worker_thread
     from .hsptl_core.synthetic_data.scheduler import SyntheticScheduler
     worker = start_worker_thread(_JOBS)
     scheduler = SyntheticScheduler(_FACTORY)
@@ -130,8 +130,7 @@ async def lifespan(_: FastAPI):
         if os.environ.get("HSPTL_DISABLE_EXTERNAL_AUTOMATION") != "1":
             ucks_routes.EXTERNAL_AUTOMATION.stop()
         scheduler.stop()
-        if worker is not None:
-            worker.join(timeout=2)
+        stop_worker_thread(_JOBS, timeout=2)
 
 
 app = FastAPI(
