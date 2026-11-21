@@ -151,7 +151,7 @@ export default function PublishedLearningPanel() {
   return <section className="mt-8 space-y-4" aria-labelledby="published-learning-title">
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div><div className="eyebrow">PUBLISHED · USE · VALIDATE</div><h2 id="published-learning-title" className="text-xl font-bold mt-1">Published learning artefacts</h2>
-        <p className="muted mt-1 max-w-3xl text-sm">Use the artefact first, complete the activity, then assess its educational, clinical, source and assessment validity. Validation is version-specific and builds from documented use.</p></div>
+        <p className="muted mt-1 max-w-3xl text-sm">Provisional artefacts are available for educational use before expert approval. Use the artefact first, complete the activity, then assess its educational, clinical, source and assessment validity. Provisional availability is not clinical approval; validation is version-specific.</p></div>
       <span className="rounded-full border border-[var(--border-subtle)] px-3 py-1 text-xs">{items.length} available</span>
     </div>
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3 text-xs">
@@ -160,12 +160,12 @@ export default function PublishedLearningPanel() {
     </div>
     {error && <div role="alert" className="status-error">{error}</div>}
     {message && <div role="status" className="status-success">{message}</div>}
-    {!items.length && !error && <div className="hsptl-card p-5 text-sm muted">No approved and distributed learning artefacts are available yet. Drafts and items awaiting publication are intentionally hidden from this post-use validation flow.</div>}
+    {!items.length && !error && <div className="hsptl-card p-5 text-sm muted">No provisionally published or approved learning artefacts are available yet. Drafts and withdrawn or unsafe items remain hidden.</div>}
     <div className="grid gap-3 lg:grid-cols-2">
       {items.map((item) => {
         const validation = item.validation;
         return <article key={item.id} className="hsptl-card p-5">
-          <div className="flex items-start justify-between gap-3"><div><div className="eyebrow">{item.workspace} · {item.kind.replaceAll('_', ' ')}</div><h3 className="mt-1 font-bold">{item.title}</h3></div><span className="rounded-full bg-hsptl-teal-light px-2 py-1 text-[10px] font-bold text-hsptl-teal-dark">Published</span></div>
+          <div className="flex items-start justify-between gap-3"><div><div className="eyebrow">{item.workspace} · {item.kind.replaceAll('_', ' ')}</div><h3 className="mt-1 font-bold">{item.title}</h3></div><span className="rounded-full border border-[var(--border-subtle)] px-2 py-1 text-[10px] font-bold">{item.status === 'approved' ? 'Approved' : 'Provisional · educational use'}</span></div>
           <p className="muted mt-2 text-sm">{bodyText(item.body).slice(0, 260) || 'Source-linked learning resource. Open to review the available content.'}</p>
           <div className="mt-4 rounded-lg border border-[var(--border-subtle)] p-3">
             <div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-[10px] font-bold uppercase tracking-wider muted">Validation score</div><div className="text-2xl font-bold tabular-nums">{validation?.validation_percent ?? 0}<span className="text-base font-semibold">%</span></div></div><span className="rounded-full border border-[var(--border-subtle)] px-2 py-1 text-[10px]">{validationLabel(validation?.state || 'awaiting_post_use_evidence')}</span></div>

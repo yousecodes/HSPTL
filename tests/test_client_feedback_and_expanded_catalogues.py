@@ -74,7 +74,7 @@ def _configure_feedback_db(tmp_path, monkeypatch):
     return artifact
 
 
-def test_publication_gate_requires_approval_and_delivered_route(tmp_path, monkeypatch):
+def test_publication_gate_allows_provisional_after_delivery_but_not_before(tmp_path, monkeypatch):
     db_path = tmp_path / "publication_gate.sqlite3"
     monkeypatch.setattr(published_learning, "DB_PATH", db_path)
     monkeypatch.setattr(published_learning, "ENGINE", GenerationDistribution(db_path))
@@ -84,10 +84,12 @@ def test_publication_gate_requires_approval_and_delivered_route(tmp_path, monkey
         body={"sections": [{"title": "Reasoning", "content": "Draft text"}]},
     )
     assert published_learning._published_artifact(artifact["id"]) is None
-    published_learning.ENGINE.review(artifact["id"], "approved", "educator")
-    assert published_learning._published_artifact(artifact["id"]) is None
     published_learning.ENGINE.route(artifact["id"], "clinic", "learning_library")
-    assert published_learning._published_artifact(artifact["id"]) is not None
+    available = published_learning._published_artifact(artifact["id"])
+    assert available is not None
+    assert available["status"] == "provisional"
+    assert available["publication_state"] == "provisionally_available"
+    assert available["clinical_approval"] == "not_granted"
 
 
 def test_learner_feedback_requires_actual_use_and_only_linked_sources(tmp_path, monkeypatch):

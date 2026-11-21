@@ -855,3 +855,21 @@ def test_synthetic_scheduler_starts_by_default_and_stops_cleanly(monkeypatch):
     assert thread is not None and thread.is_alive()
     scheduler.stop()
     assert not thread.is_alive()
+
+
+def test_default_daily_teaching_supply_schedule_is_durable_and_idempotent(tmp_path):
+    factory = make_factory(tmp_path)
+    first = factory.ensure_default_schedule()
+    second = factory.ensure_default_schedule()
+    assert first["schedule_id"] == "synsch_hsptl_daily_teaching_supply_v1"
+    assert second["schedule_id"] == first["schedule_id"]
+    assert second["enabled"] == 1
+    assert second["frequency"] == "daily"
+    assert second["accepted_target"] == 10
+    assert second["population"] <= 20
+    assert second["next_run_at"]
+    assert len(factory.store.list_schedules()) == 1
+    queued = factory.run_due_schedules()
+    assert len(queued) == 1
+    assert queued[0]["schedule_id"] == first["schedule_id"]
+    assert queued[0]["job_id"]

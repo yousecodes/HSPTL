@@ -91,12 +91,12 @@ def test_distribution_adapter_delivers_to_native_workspace_content_index(tmp_pat
     assert delivered['adapter']=='tagged_content_index'
     with store.transaction() as c:
         row=c.execute('SELECT workspace,source_status,title FROM tagged_content_items WHERE item_id=?',(delivered['destination_id'],)).fetchone()
-    assert tuple(row)==('exam','unreviewed','Acute asthma pearl')
+    assert tuple(row)==('exam_hall','unreviewed','Acute asthma pearl')
 
-def test_distribution_adapter_maps_all_six_workspaces(tmp_path):
+def test_distribution_adapter_maps_generator_outputs_to_seven_product_workspaces(tmp_path):
     store=StudyStore(tmp_path/'all-workspaces.db')
     adapter=WorkspaceDistributionAdapter(store)
-    cases=[('clinic','case_report','case_report','conference'),('rounds','tagged_report','case_report','rounds'),('lab','spot_diagnosis','osce','lab'),('ward','on_call_scenario','simulation','on_call'),('exam_hall','pearl','pearl','exam'),('portfolio','progress_snapshot','case','data_tools')]
+    cases=[('clinic','case_report','case_report','clinic'),('rounds','tagged_report','case_report','rounds'),('lab','spot_diagnosis','osce','lab'),('ward','on_call_scenario','simulation','ward'),('exam_hall','pearl','pearl','exam_hall'),('portfolio','progress_snapshot','case','library'),('simulation','simulation_brief','simulation','learning')]
     for i,(workspace,kind,content_type,target) in enumerate(cases):
         result=adapter.deliver({'id':f'gen-{i}','kind':kind,'title':f'Artifact {i}','workspace':workspace,'body':{'sections':[]}},'default')
         with store.transaction() as c:

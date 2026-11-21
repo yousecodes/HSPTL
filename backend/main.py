@@ -107,6 +107,9 @@ async def lifespan(_: FastAPI):
                 lottery_seed["created"], lottery_seed["already_present"])
     from .hsptl_core.jobs import start_worker_thread, stop_worker_thread
     from .hsptl_core.synthetic_data.scheduler import SyntheticScheduler
+    default_synthetic_schedule = _FACTORY.ensure_default_schedule()
+    logger.info("Default synthetic teaching supply schedule: %s (%s)",
+                default_synthetic_schedule["schedule_id"], default_synthetic_schedule["last_status"])
     worker = start_worker_thread(_JOBS)
     scheduler = SyntheticScheduler(_FACTORY)
     scheduler.start()

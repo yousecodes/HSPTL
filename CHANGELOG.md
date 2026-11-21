@@ -1,5 +1,14 @@
 # Changelog
 
+## HSPTL 6.1 implementation work (unreleased)
+
+- Connected provisionally published, delivered learning artefacts to the learner-facing use and post-use feedback flow. Draft, source-stale and withdrawn artefacts remain unavailable; provisional availability is explicitly not clinical approval.
+- Kept use records and feedback bound to the artefact content hash so a changed version cannot inherit an earlier learner validation vote.
+- Added an idempotently seeded, durable daily Synthea teaching-supply schedule (bounded population and accepted target) to application startup. Synthetic QA remains separate from clinical validation.
+- Aligned generation delivery destinations with the seven product workspaces; legacy generation identifiers map Simulation to Learning and Portfolio to Library.
+- Added an integrated source-to-provisional-publication-to-learner-use/feedback-to-retraction-withdrawal test.
+- Verification: all 542 collected backend tests pass (executed in bounded batches); Python compile checks pass. Frontend dependency installation could not complete because the package registry was unreachable and the required Vite tarball was not cached, so TypeScript and production build remain unverified. Native Windows clean-install and live Synthea execution remain release gates.
+
 ## Autonomous-vision implementation update (unreleased; based on 6.0.0)
 
 - Added optional loopback-only Ollama synthesis with exact-quote citation validation and deterministic no-key fallback.

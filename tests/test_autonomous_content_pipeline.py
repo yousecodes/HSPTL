@@ -131,3 +131,56 @@ def test_source_revision_and_retraction_quarantine_downstream_learning_artifacts
         route = conn.execute("SELECT status FROM distribution_routes WHERE artifact_id=?", (old_artifact_id,)).fetchone()
     assert old["status"] == "withdrawn"
     assert route["status"] == "withdrawn"
+
+
+def test_integrated_source_to_provisional_learner_feedback_then_withdrawal(tmp_path, monkeypatch):
+    """Exercise the learner loop against the same persisted artifact lifecycle."""
+    import backend.routers.published_learning as published_learning
+    from backend.hsptl_core.generation_distribution import GenerationDistribution
+
+    db_path = tmp_path / "integrated-6-1.sqlite3"
+    store = StudyStore(db_path)
+    repo = UCKSRepository(store)
+    monkeypatch.setattr(published_learning, "DB_PATH", db_path)
+    monkeypatch.setattr(published_learning, "ENGINE", GenerationDistribution(db_path))
+    published_learning._init()
+
+    source = repo.register_source(name="Integrated evidence", source_type="external_import")
+    document = repo.ingest_document(
+        source_id=source["id"], title="Integrated asthma guidance",
+        body="## Assessment\n\n" + "A structured assessment and reassessment are recommended. " * 10,
+        content_type="guideline", external_id="integrated-guideline",
+        source_url="https://example.org/integrated", licence="CC-BY-4.0",
+        review_status="machine_screened",
+    )
+    automation = ExternalSourceAutomation(repo)
+    run = {"results": [{"source_id": source["id"], "status": "succeeded", "records_added": 1}]}
+    generated = automation._generate_and_publish_new_records(run)
+    assert generated["published"] == 1
+    artifact_id = generated["items"][0]["artifact_id"]
+
+    listed = published_learning.published_artifacts()
+    assert any(item["id"] == artifact_id for item in listed["items"])
+    available = published_learning._published_artifact(artifact_id)
+    assert available is not None
+    assert available["status"] == "provisional"
+    assert available["clinical_approval"] == "not_granted"
+    use = published_learning.record_artifact_use(
+        artifact_id, published_learning.UseRequest(learner_id="learner-integrated"),
+    )
+    published_learning.complete_artifact_use(
+        artifact_id, use["usage_id"],
+        published_learning.CompleteUseRequest(learner_id="learner-integrated"),
+    )
+    feedback = published_learning.submit_artifact_feedback(
+        artifact_id, published_learning.FeedbackRequest(
+            usage_id=use["usage_id"], learner_id="learner-integrated", rating=4,
+            categories=["no_issue"], comment="Used the provisional learning artefact.",
+        ),
+    )
+    assert feedback["received"] is True
+
+    repo.set_lifecycle_state(document["id"], "retracted")
+    lifecycle = automation._reconcile_downstream_artifacts()
+    assert lifecycle["withdrawn"] == 1
+    assert published_learning._published_artifact(artifact_id) is None

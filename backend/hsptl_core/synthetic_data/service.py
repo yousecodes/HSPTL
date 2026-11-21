@@ -370,6 +370,35 @@ class SyntheticDataFactory:
                                                 next_run_at=_next_run(frequency))
         return record
 
+    def ensure_default_schedule(self) -> dict[str, Any]:
+        """Create the bounded, durable daily synthetic teaching-case supply schedule once.
+
+        The schedule only produces explicitly synthetic data. Recipe and dataset QA
+        remain required before cases can enter the daily lottery; this is not clinical
+        approval. A stable ID makes startup/restart idempotent.
+        """
+        schedule_id = "synsch_hsptl_daily_teaching_supply_v1"
+        existing = self.store.get_schedule(schedule_id)
+        if existing is not None:
+            return existing
+        recipe_id = "asthma-cohort"
+        recipe = self.recipes.get(recipe_id)
+        if recipe is None:
+            raise RuntimeError("The built-in asthma synthetic recipe is unavailable")
+        now = _now()
+        record = self.store.create_schedule({
+            "schedule_id": schedule_id,
+            "name": "HSPTL daily synthetic teaching-case supply",
+            "recipe_id": recipe_id,
+            "recipe_version": recipe["version"],
+            "population": min(20, int(recipe["body"].get("population", {}).get("maximum", 20))),
+            "accepted_target": 10,
+            "frequency": "daily",
+            "enabled": True,
+        })
+        return self.store.update_schedule(schedule_id, next_run_at=now,
+                                          last_status="seeded_automatically") or record
+
     def run_due_schedules(self) -> list[dict[str, Any]]:
         """Queue any due schedule. Never overlaps with an active run."""
         queued: list[dict[str, Any]] = []

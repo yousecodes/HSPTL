@@ -5,10 +5,13 @@ from typing import Any
 from .tagging import TagRepository
 from .exams import ExamRepository, normalise_question_row
 
+# Generation IDs are retained for backwards compatibility, but their delivery
+# destinations are the seven user-facing HSPTL workspaces. In particular,
+# portfolio -> Library and simulation -> Learning; neither creates a new tab.
 WORKSPACE_TARGETS = {
-    "clinic": "conference", "rounds": "rounds", "lab": "lab",
-    "ward": "on_call", "exam_hall": "exam", "portfolio": "data_tools",
-    "simulation": "simulation",
+    "clinic": "clinic", "rounds": "rounds", "lab": "lab",
+    "ward": "ward", "exam_hall": "exam_hall", "portfolio": "library",
+    "simulation": "learning",
 }
 CONTENT_TYPES = {
     "case_report": "case_report", "case_debrief": "debrief", "conference_brief": "case",
@@ -22,7 +25,7 @@ CONTENT_TYPES = {
 }
 
 class WorkspaceDistributionAdapter:
-    """Writes approved artefacts to the native tagged-content index used by workspace libraries."""
+    """Writes provisionally available or approved artefacts to native workspace indexes."""
     def __init__(self, store):
         self.tags = TagRepository(store)
         self.exams = ExamRepository(store.db_path)
@@ -43,6 +46,7 @@ class WorkspaceDistributionAdapter:
         elif artifact["workspace"] == "ward": tag_ids=["task.management"]
         elif artifact["workspace"] == "exam_hall": tag_ids=["task.diagnosis"]
         elif artifact["workspace"] == "portfolio": tag_ids=["competency.evidence-appraisal"]
+        elif artifact["workspace"] == "simulation": tag_ids=["task.clinical-reasoning"]
         # Assessment outputs are also inserted into the real examination bank as
         # unreviewed items. The artifact remains the citation/provenance authority.
         assessment_question_ids=[]

@@ -1,6 +1,7 @@
-"""Learner post-use feedback for approved, delivered learning artefacts.
+"""Learner post-use feedback for provisionally published or approved artefacts.
 
-Learner reports are quality signals, not clinical approvals or source-rights
+Provisional educational availability is not clinical approval. Learner reports
+are version-bound quality signals, not clinical approvals or source-rights
 permissions. Only a configured reviewer can triage/resolve them.
 """
 from __future__ import annotations
@@ -297,13 +298,15 @@ def _published_artifact(artifact_id: str) -> dict[str, Any] | None:
             """SELECT r.id AS route_id,r.workspace,r.section,r.status AS route_status,
                       r.created_at AS distributed_at
                FROM distribution_routes r JOIN generated_artifacts a ON a.id=r.artifact_id
-               WHERE r.artifact_id=? AND r.status='delivered' AND a.status='approved'
+               WHERE r.artifact_id=? AND r.status='delivered' AND a.status IN ('provisional','approved')
                ORDER BY r.created_at DESC""", (artifact_id,),
         ).fetchall()
     artifact = ENGINE.get_artifact(artifact_id)
-    if not artifact or artifact.get("status") != "approved" or not routes:
+    if not artifact or artifact.get("status") not in {"provisional", "approved"} or not routes:
         return None
     artifact["published_routes"] = [dict(row) for row in routes]
+    artifact["publication_state"] = "provisionally_available" if artifact.get("status") == "provisional" else "approved"
+    artifact["clinical_approval"] = "not_granted" if artifact.get("status") == "provisional" else "separately_recorded"
     artifact["validation"] = _validation_summary(artifact_id, str(artifact.get("content_hash") or ""))
     return artifact
 
@@ -361,14 +364,14 @@ def published_artifacts(workspace: str = "", limit: int = 100) -> dict[str, Any]
         rows = conn.execute(
             """SELECT DISTINCT a.id FROM generated_artifacts a
                JOIN distribution_routes r ON r.artifact_id=a.id
-               WHERE a.status='approved' AND r.status='delivered'
+               WHERE a.status IN ('provisional','approved') AND r.status='delivered'
                  AND (?='' OR r.workspace=? OR a.workspace=?)
                ORDER BY a.updated_at DESC LIMIT ?""",
             (workspace, workspace, workspace, safe_limit),
         ).fetchall()
     items = [item for row in rows if (item := _published_artifact(row["id"]))]
     return {"items": items, "count": len(items),
-            "publication_rule": "approved artifact plus at least one delivered workspace route"}
+            "publication_rule": "provisional or approved artifact plus at least one delivered workspace route; provisional is educational availability, not clinical approval"}
 
 
 @router.post("/artifacts/{artifact_id}/use", status_code=201)
