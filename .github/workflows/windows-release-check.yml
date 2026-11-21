@@ -14,7 +14,6 @@ jobs:
     timeout-minutes: 45
     env:
       HSPTL_NO_PAUSE: "1"
-      HSPTL_HOME: ${{ runner.temp }}\hsptl-windows-clean-install
     steps:
       - name: Check out clean source tree
         uses: actions/checkout@v4
@@ -55,6 +54,8 @@ jobs:
 
       - name: Run Windows startup preflight against isolated data home
         shell: pwsh
+        env:
+          HSPTL_HOME: ${{ runner.temp }}\hsptl-windows-clean-install
         run: |
           $ErrorActionPreference = 'Stop'
           & .\.venv\Scripts\python.exe scripts\startup_preflight.py
