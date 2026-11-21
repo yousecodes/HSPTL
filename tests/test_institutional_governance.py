@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.hsptl_core.config import APP_VERSION
 from backend.hsptl_core.institutional import CohortRepository, InstitutionalAuth
 from backend.main import app
 
@@ -41,12 +43,18 @@ def _create_account(client: TestClient, headers: dict[str, str], subject_id: str
     assert response.status_code == 200, response.text
 
 
-def test_version_metadata_reports_5_0_0_across_endpoints():
+def test_version_metadata_reports_current_release_across_endpoints():
+    project_root = Path(__file__).resolve().parents[1]
+    package = json.loads((project_root / "frontend" / "package.json").read_text(encoding="utf-8"))
+    lock = json.loads((project_root / "frontend" / "package-lock.json").read_text(encoding="utf-8"))
+    assert package["version"] == APP_VERSION
+    assert lock["version"] == APP_VERSION
+    assert lock["packages"][""]["version"] == APP_VERSION
     with TestClient(app) as client:
-        assert client.get("/api/health").json()["version"] == "5.2.0"
-        assert client.get("/api/bootstrap").json()["version"] == "5.2.0"
-        assert client.get("/api/v4/architecture").json()["version"] == "5.2.0"
-        assert client.get("/api/v4/status").json()["version"] == "5.2.0"
+        assert client.get("/api/health").json()["version"] == APP_VERSION
+        assert client.get("/api/bootstrap").json()["version"] == APP_VERSION
+        assert client.get("/api/v4/architecture").json()["version"] == APP_VERSION
+        assert client.get("/api/v4/status").json()["version"] == APP_VERSION
 
 
 def test_governance_routes_are_unauthenticated_fail_closed(monkeypatch):
@@ -231,7 +239,7 @@ def test_backup_endpoint_writes_versioned_recovery_artifact(admin):
         response = client.post("/api/v4/institution/recovery/backup", headers=admin)
         assert response.status_code == 200
         payload = response.json()
-        assert "5.2.0" in Path(payload["backup"]).name
+        assert APP_VERSION in Path(payload["backup"]).name
         assert len(payload["sha256"]) == 64
         listed = client.get("/api/v4/institution/recovery/backups", headers=admin).json()
         assert listed["count"] >= 1

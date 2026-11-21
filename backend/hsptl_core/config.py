@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 APP_NAME = "HSPTL"
-APP_VERSION = "5.2.0"
+APP_VERSION = "6.0.0"
 PACKAGE_DIR = Path(__file__).resolve().parents[1]
 
 # The loopback port is the one setting shared by the Windows launchers, the Vite

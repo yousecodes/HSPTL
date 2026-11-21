@@ -229,7 +229,7 @@ export default function ClinicalSimulationPage() {
       <div className="s-panel-body">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="s-eyebrow">HSPTL 5.0 · Clinical simulation runtime</div>
+            <div className="s-eyebrow">Clinical simulation runtime</div>
             <h2 className="s-section-title mt-1">Clinical command centre</h2>
             <p className="s-section-sub max-w-3xl">A deterministic, synthetic patient encounter. Orient, observe, act, advance simulated time, document, receive formative feedback and replay the run.</p>
           </div>

@@ -724,7 +724,8 @@ def test_overview_reports_version_and_integrity(client):
     response = client.get("/api/v5/overview")
     assert response.status_code == 200
     body = response.json()
-    assert body["version"] == "5.2.0"
+    from backend.hsptl_core.config import APP_VERSION
+    assert body["version"] == APP_VERSION
     assert body["labels"]["derived_without_lineage"] == 0
     assert body["engines"]["all_integrated"] is True
     assert body["pearls"]["external_models"] == 0

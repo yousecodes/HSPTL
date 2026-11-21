@@ -259,7 +259,7 @@ export default function App() {
       <main className={`hx-main-content hx-view-${view}`} key={view}>
         <Suspense fallback={<RouteLoading/>}>{renderPage()}</Suspense>
       </main>
-      <footer className="hx-footer"><span>HSPTL 6.0 Development Preview · Base 5.2.0</span><span>Deterministic · Governed · Human-reviewed</span></footer>
+      <footer className="hx-footer"><span>HSPTL 6.0.0</span><span>Deterministic · Governed · Human-reviewed</span></footer>
     </div>
     <HospitalDirectory
       open={directoryOpen}

@@ -1,11 +1,14 @@
-<<<<<<< HEAD
 # HSPTL — Clinical Learning Hospital
 
-HSPTL is a local-first clinical learning environment built around **structured study, case reasoning, simulation, skills practice, assessment and debrief**. The learner experience opens with a learning dashboard and a populated starter library; the original Clinic, Rounds, Lab, Ward, Exam Hall and Portfolio capabilities remain available as in-process modules and routes. HSPTL is an educational product, not a healthcare provider or clinical decision-support system.
+HSPTL is a local-first clinical learning and simulation environment for structured study, case reasoning, investigations, management, skills practice, assessment and debrief. It is an educational product, not a healthcare provider or a clinical decision-support system.
 
-## HSPTL 5.2.0
+## HSPTL 6.0.0
 
-This release simplifies the learner entry points, keeps specialist routes available in the All modules directory, and prepares local educational drafts automatically at startup. The global **Update content** action checks installed versioned packs from any workspace. Drafts are deterministic and remain subject to educator review; the refresh process never auto-approves or publishes clinical material. New output types cover on-call scenarios, handover templates and simulation briefs. See `CHANGELOG.md` and `RELEASE_STATUS_5.2.0.md`.
+HSPTL 6.0.0 brings the seven learner workspaces together: **Clinic, Lab, Ward, Library, Learning, Exam Hall and Rounds**. The HSPTL logo opens the persisted Daily Clinical Case experience; Clinic and Ward share the same daily lottery draw, and the chronological archive avoids revealing case diagnoses.
+
+The release consolidates the deterministic local content pipeline, automated external-source metadata discovery, source provenance and reuse-rights controls, version-specific learner post-use assessments, and the seven-workspace engine integration. Learner feedback contributes to educational validation; it is not a measure of clinical competence. Machine screening or automated import does not by itself establish clinical validity or permission to reuse full text or images.
+
+The local content-generation workflow does not require an AI model or API key. External-source connectors retrieve metadata from supported public services; licensing, safety and clinical review boundaries remain in force. See [the changelog](CHANGELOG.md), [current release status](docs/RELEASE_STATUS.md) and [Windows clean-install guide](WINDOWS_CLEAN_INSTALL_AND_PRODUCTION_BUILD.md).
 
 ## HSPTL 5.1.0
 
@@ -17,7 +20,7 @@ fails closed without one.
 
 These controls improve deployment governance. They do **not** establish SSO/MFA, enterprise
 encryption at rest, production multi-tenant isolation, validated clinical safety or independent
-clinical approval. Read [Release Status](RELEASE_STATUS.md) before any institutional deployment.
+clinical approval. Read [Release Status](docs/RELEASE_STATUS.md) before any institutional deployment.
 
 Set `HSPTL_ADMIN_TOKEN` (32+ characters) and `HSPTL_INSTITUTION_ID` to enable governance routes.
 
@@ -58,11 +61,11 @@ HSPTL 4.0 retains the 3.0 application and six workspaces while adding determinis
 
 ## Start learning immediately
 
-After installation, open **Overview**. The starter Learning Library is bundled with the application and does not require Synthea, a connected dataset, an AI model or an API key. The first curated pack contains eight synthetic acute-care learning units and 24 formative retrieval questions. Each unit also includes learning objectives, a fictional case, teaching points, common pitfalls, two viva prompts, an OSCE station outline and reflection questions.
+After installation, select the HSPTL logo to open the Daily Clinical Case experience. The starter Learning Library is bundled with the application and does not require Synthea, a connected dataset, an AI model or an API key. The first curated pack contains eight synthetic acute-care learning units and 24 formative retrieval questions. Each unit also includes learning objectives, a fictional case, teaching points, common pitfalls, two viva prompts, an OSCE station outline and reflection questions.
 
 A suggested first session:
 
-1. Open **Learning library** and choose Acute asthma or Acute chest pain.
+1. Open **Library** and choose Acute asthma or Acute chest pain.
 2. Read the synthetic presentation and reveal additional findings only after considering what you need to ask or examine.
 3. Answer the three formative questions and read each rationale.
 4. Open **Simulation lab** for the interactive synthetic asthma scenario.
@@ -78,12 +81,15 @@ All generated artifacts remain drafts. A qualified reviewer must inspect and app
 
 ## Hospital workspaces
 
-1. **Clinic — Diagnosis:** Case Reports, Case Debriefs, Case Conference and Case Archives.
-2. **Rounds — Examination:** Viva Questions, Tagged Report Library and Procedure Theatre.
-3. **Lab — Investigations:** Spot Diagnosis and OSCE.
-4. **Ward — Management:** On-Call Room, Handover Desk, Consult Room and evidence-based progression from Intern towards Consultant.
-5. **Exam Hall:** High-Yield Pearls, Summaries, Attending Lectures, Questions and F-to-S performance scores.
-6. **Portfolio:** Profile, Progress Board, Data Tools and administrative question review.
+1. **Clinic — Diagnosis:** the persisted Daily Clinical Case, case reports, debriefs and case conference.
+2. **Lab — Investigations:** investigation interpretation, OSCE and practical skills.
+3. **Ward — Management:** on-call scenarios, handover, consult workflows and management practice.
+4. **Library — References:** clinical learning resources, source records and tagged material.
+5. **Learning — Guided study:** lectures, topic learning and structured revision.
+6. **Exam Hall — Assessment:** question bank, mock examinations and formative performance.
+7. **Rounds — Specialty practice:** specialty rounds, viva and tagged reports.
+
+**My Profile** contains learner profile and progress; Archive is available from the workspace header.
 
 HSPTL is a clinical case-solving and performance platform. Learning activity and workflow completion are formative records; they do not independently establish clinical competence or authorise unsupervised clinical practice.
 
@@ -141,7 +147,7 @@ Open-access status does not by itself grant permission to redistribute or adapt 
 3. Run `start_hsptl.bat`.
 4. Open `http://127.0.0.1:8000` if it does not open automatically.
 
-`check_hsptl.bat` invokes the full release verification suite, including tests and frontend build. The consolidated verification result for this release is recorded in `RELEASE_STATUS.md`.
+`check_hsptl.bat` invokes the full release verification suite, including tests and frontend build. The consolidated verification result for this release is recorded in `docs/RELEASE_STATUS.md`.
 
 The server binds to loopback only. Do not expose it to a public network.
 
@@ -208,11 +214,3 @@ To enable authenticated rights and evidence-appraisal decisions, set `HSPTL_REVI
 
 
 For continuous UCKS feed, connector and provider-reachability checks, start `run_ucks_scheduler.bat` after HSPTL is running. The scheduler can also be run once through `scripts/run_ucks_scheduler.py`; details and limitations are documented in `docs/UCKS.md`.
-
-
-## HSPTL 5.1.0
-
-This release adds source reliability appraisal, learner-specific case practice recommendations, formative lottery submissions, and safer Windows install/start launchers. See `RELEASE_STATUS.md` for scope and limitations.
-=======
-# HSPTL
->>>>>>> 4dcc48cc794d4e4e7ea0e723e6ff49a30cce5a78

@@ -1,25 +1,25 @@
-# HSPTL current release status
+# HSPTL 6.0.0 — Release status
 
-**Current packaged application identity:** 5.2.0  
-**Current development target:** HSPTL 6.0  
-**6.0 status:** release-verification candidate; **not promoted**.
+**Application version:** `6.0.0`  
+**Release stream:** 6.0.0 promotion  
+**Package status:** source release candidate prepared; final tag/publishing follows a green workflow for this exact versioned commit.
 
-The current 6.0 candidate contains the Phase 0–8 work, including governed content generation and external-source discovery, post-use learner validation, clinical event assignments, Daily Case Archive, specialty Rounds, My Profile / Clinical Journey, and learner portfolio export.
+## Release contents
 
-## Release gates
+- Seven learner workspaces: Clinic, Lab, Ward, Library, Learning, Exam Hall and Rounds. My Profile, learner progress and the chronological Daily Case Archive are available through the shared workspace shell.
+- Persisted Daily Case Lottery is the single daily-case selection path. Clinic and Ward share the same draw; archive projections omit diagnosis and answer payloads.
+- Versioned clinical-event and specialty catalogues support configurable learning themes without fabricating cases.
+- Deterministic local content generation and content refresh do not require AI models or API keys.
+- External-source metadata discovery/import is automated for supported public services; provenance, source permissions, safety screening, clinical validity and post-use learner validation remain separate.
+- Version-specific post-use assessment accepts feedback from authenticated learners and contributes evidence to a 0–100 educational validation score with role-aware evidence and domain sign-offs. This is not a clinical competence or entrustment score.
+- Seven shared engines remain integrated behind the workspace contracts; the existing local-first modular-monolith deployment is preserved.
 
-| Gate | Status |
-|---|---|
-| Backend tests (506) | Passed |
-| Python compile/content-pack/startup preflight | Passed |
-| Local backend boot and `/api/health` smoke test | Passed |
-| Frontend source syntax parse (40 TS/TSX files) | Passed — syntax only |
-| Frontend semantic TypeScript typecheck | Blocked: npm dependencies could not be installed (`EAI_AGAIN`) |
-| Vite production build | Blocked: npm dependencies could not be installed (`EAI_AGAIN`) |
-| Native Windows clean installation | Not yet run; workflow added for `windows-latest` |
+## Verification evidence
 
-See `HSPTL_6.0_RELEASE_CANDIDATE_STATUS.md` and `HSPTL_6.0_PHASES_5-8_IMPLEMENTATION_REPORT.md` for exact checks and outstanding release requirements.
+- Full backend suite for the 6.0.0 version-aligned source: **521 passed, 0 failed**. Static and boot verifier: **6 passed, 0 failed**; details are in `HSPTL_6.0.0_RELEASE_VERIFICATION_REPORT.md`.
+- The maintainer reports that the corrected Windows clean-install GitHub Actions workflow completed green before this version-alignment increment. That workflow performs clean Windows installation, Python dependency checks, frontend npm install/typecheck/production build, startup preflight, backend tests and a backend health smoke test.
+- **Required final step:** push this version-aligned commit and confirm a fresh green run of `.github/workflows/windows-release-check.yml` for that exact commit before creating the `v6.0.0` tag or publishing the GitHub Release.
 
-**Do not label or distribute this as final HSPTL 6.0.0.** Keep `APP_VERSION` and frontend package version at 5.2.0 until the frontend typecheck/build and native Windows workflow both pass. After those checks, update the release identity, regenerate the archive and manifest, and rerun the complete release verifier.
+## Release limitations
 
-HSPTL remains a local-first clinical education and simulation application. It is not a clinical decision-support system, a substitute for clinical supervision, or an institutionally accredited platform.
+HSPTL is a local-first clinical education and simulation platform. It is not a healthcare provider, clinical decision-support system, independent clinical validation authority or institutionally accredited platform. Learner feedback and validation scores do not establish clinical competence, entrustment or readiness for unsupervised practice. Source reuse must follow the actual licence/terms for each item.

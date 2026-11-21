@@ -1,4 +1,4 @@
-"""HSPTL 5.2.0 source and learning intelligence API: sources, local folders, labels, lottery, engines, pearls.
+"""HSPTL 6.0 source and learning intelligence API: sources, local folders, labels, lottery, engines, pearls.
 
 Design notes that matter for reviewing this file:
 
@@ -24,6 +24,7 @@ from ..runtime import (
     STORE, LABELS, SOURCE_REGISTRY, LOCAL_SOURCES, CASE_LOTTERY, PEARLS_FACTORY,
     ENGINE_INTEGRATION, UCKS_REPO, JOBS, LOCAL_SOURCE_JOB_KIND, LEARNING_INTELLIGENCE,
 )
+from ..hsptl_core.config import APP_VERSION
 from ..hsptl_core.content_labels import (
     CONTENT_LABELS, LABEL_DERIVED, LABEL_GENERATED, LABEL_IMPORTED, LABEL_SYNTHETIC,
     LabelError, LabelledContent, LineageRef, content_hash, describe_labels,
@@ -36,7 +37,7 @@ from ..hsptl_core.case_lottery import LotteryError, WORKSPACES as LOTTERY_WORKSP
 from ..hsptl_core.engine_integration import IntegrationError, EngineIntegration, SKINS, WORKSPACES as PRODUCT_WORKSPACES
 from ..hsptl_core.pearls_factory import PearlsFactory, TEMPLATES
 
-router = APIRouter(prefix="/api/v5", tags=["HSPTL 5.0 next increments"])
+router = APIRouter(prefix="/api/v5", tags=["HSPTL learning and content"])
 
 
 # --------------------------------------------------------------------------- #
@@ -593,7 +594,7 @@ def next_increments_overview() -> dict[str, Any]:
     """One read for the operations screen: lineage, rights, folders, lottery, engines."""
     lottery = CASE_LOTTERY.summary()
     return {
-        "version": "5.2.0",
+        "version": APP_VERSION,
         "learning_intelligence": "personalized_practice_and_source_reliability_appraisal",
         "labels": LABELS.summary(),
         "source_registry": SOURCE_REGISTRY.summary(),

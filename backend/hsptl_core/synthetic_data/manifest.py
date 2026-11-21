@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 MANIFEST_SCHEMA_VERSION = "hsptl.synthetic.manifest/1.0"
-SOFTWARE_VERSION = "HSPTL 5.2.0"
+SOFTWARE_VERSION = "HSPTL 6.0.0"
 
 
 def canonical_json(value: Any) -> str:

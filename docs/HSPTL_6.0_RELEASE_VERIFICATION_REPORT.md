@@ -1,3 +1,5 @@
+> Historical preview record: this report describes the earlier 5.2.0-based 6.0 development candidate and its then-open gates. It is superseded by [the HSPTL 6.0.0 promotion verification report](HSPTL_6.0.0_RELEASE_VERIFICATION_REPORT.md) and [current release status](RELEASE_STATUS.md).
+
 # HSPTL 6.0 — Phases 5–8 Implementation Report
 
 **Artifact:** HSPTL 6.0 development preview, built on the 5.2.0 application baseline  
