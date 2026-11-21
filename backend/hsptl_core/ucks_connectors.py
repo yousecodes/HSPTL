@@ -175,11 +175,14 @@ def _clinicaltrials(query: str, limit: int, session) -> list[dict[str, Any]]:
         status = p.get("statusModule", {}); design = p.get("designModule", {})
         nct = _text(ident.get("nctId")); title = _text(ident.get("briefTitle") or ident.get("officialTitle"))
         summary = _text(desc.get("briefSummary")); detailed = _text(desc.get("detailedDescription"))
-        body = f"# {title}\n\nRegistry identifier: {nct}\n\n## Brief summary\n{summary}\n\n## Detailed description\n{detailed}\n\n## Registry status\n{_text(status.get('overallStatus'))}\n\n## Study design\n{_text(design)}"
+        last_update = _text(status.get("studyLastUpdatePostDateStruct", {}).get("date") if isinstance(status.get("studyLastUpdatePostDateStruct"), dict) else status.get("studyLastUpdatePostDate"))
+        last_update_submit = _text(status.get("studyLastUpdateSubmitDate"))
+        body = f"# {title}\n\nRegistry identifier: {nct}\n\n## Brief summary\n{summary}\n\n## Detailed description\n{detailed}\n\n## Registry status\n{_text(status.get('overallStatus'))}\n\n## Last updated\n{last_update}\n\n## Study design\n{_text(design)}"
         out.append({"external_id": nct, "title": title or nct, "body": body, "content_type": "trial",
                     "publication_date": _date(status.get("studyFirstSubmitDate")), "url": f"https://clinicaltrials.gov/study/{nct}",
                     "licence": "", "provenance": {"connector": "ClinicalTrials.gov API v2", "nct_id": nct,
-                    "overall_status": _text(status.get("overallStatus")), "last_update_submitted": _text(status.get("studyFirstPostDateStruct")),
+                    "overall_status": _text(status.get("overallStatus")), "last_update_submitted": last_update_submit,
+                    "last_update_posted": last_update,
                     "results_first_posted": _text(status.get("resultsFirstPostDateStruct")), "rights_review_required": True}})
     return out
 
@@ -238,10 +241,17 @@ def _pubmed_page(query: str, limit: int, session, cursor: str = "") -> dict[str,
             body = f"# {title}\n\n## Abstract\n{abstract}" if abstract else f"# {title}\n\nBibliographic metadata record; abstract not supplied by source."
             publication_types = [ _text(" ".join(node.itertext())) for node in article.findall(".//PublicationTypeList/PublicationType") ]
             pub_types_text = " ".join(publication_types).casefold()
+            publication_relations = []
+            for relation_node in article.findall(".//CommentsCorrectionsList/CommentsCorrections"):
+                relation_type = _text(relation_node.get("RefType"))
+                ref_source = _text(relation_node.get("RefSource"))
+                ref_match = re.search(r"\bPMID:\s*(\d+)\b", ref_source, re.I)
+                if relation_type in {"RetractionIn", "RetractionOf", "ErratumIn", "ErratumFor", "CorrectionIn", "CorrectionOf"}:
+                    publication_relations.append({"type": relation_type, "pmid": ref_match.group(1) if ref_match else ""})
             records.append({"external_id": f"PMID:{pmid}", "title": title, "body": body, "content_type": "other",
                 "publication_date": _date(date), "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/", "licence": "",
                 "provenance": {"connector": "NCBI PubMed E-utilities", "pmid": pmid,
-                    "publication_types": publication_types,
+                    "publication_types": publication_types, "publication_relations": publication_relations,
                     "publisher_lifecycle_signal": ("retracted" if "retracted publication" in pub_types_text else ""),
                     "rights_review_required": True}})
     next_offset = offset + len(ids)
@@ -252,20 +262,24 @@ def _pubmed_page(query: str, limit: int, session, cursor: str = "") -> dict[str,
 def _crossref_page(query: str, limit: int, session, cursor: str = "") -> dict[str, Any]:
     offset = max(0, int(cursor or 0))
     date_tokens = {}
-    for key in ("from-pub-date", "until-pub-date"):
+    for key in ("from-pub-date", "until-pub-date", "from-update-date", "until-update-date"):
         match = re.search(rf"\b{key}:(\d{{4}}-\d{{2}}-\d{{2}})", query)
         if match:
             date_tokens[key] = match.group(1)
-    search_query = re.sub(r"\b(?:from-pub-date|until-pub-date):\d{4}-\d{2}-\d{2}", "", query).strip()
+    search_query = re.sub(r"\b(?:from-pub-date|until-pub-date|from-update-date|until-update-date):\d{4}-\d{2}-\d{2}", "", query).strip()
     params = {"query": search_query, "rows": limit, "offset": offset,
         "select": "DOI,title,author,published,published-print,published-online,type,URL,license,relation",
-        "sort": "published", "order": "desc"}
+        "sort": "updated" if any(k.endswith("update-date") for k in date_tokens) else "published", "order": "desc"}
     if date_tokens:
         filters = []
         if "from-pub-date" in date_tokens:
             filters.append("from-pub-date:" + date_tokens["from-pub-date"])
         if "until-pub-date" in date_tokens:
             filters.append("until-pub-date:" + date_tokens["until-pub-date"])
+        if "from-update-date" in date_tokens:
+            filters.append("from-update-date:" + date_tokens["from-update-date"])
+        if "until-update-date" in date_tokens:
+            filters.append("until-update-date:" + date_tokens["until-update-date"])
         params["filter"] = ",".join(filters)
     raw = _get("https://api.crossref.org/works", params, session=session)
     message = json.loads(raw).get("message", {})
@@ -303,11 +317,14 @@ def _clinicaltrials_page(query: str, limit: int, session, cursor: str = "") -> d
         status = p.get("statusModule", {}); design = p.get("designModule", {})
         nct = _text(ident.get("nctId")); title = _text(ident.get("briefTitle") or ident.get("officialTitle"))
         summary = _text(desc.get("briefSummary")); detailed = _text(desc.get("detailedDescription"))
-        body = f"# {title}\n\nRegistry identifier: {nct}\n\n## Brief summary\n{summary}\n\n## Detailed description\n{detailed}\n\n## Registry status\n{_text(status.get('overallStatus'))}\n\n## Study design\n{_text(design)}"
+        last_update = _text(status.get("studyLastUpdatePostDateStruct", {}).get("date") if isinstance(status.get("studyLastUpdatePostDateStruct"), dict) else status.get("studyLastUpdatePostDate"))
+        last_update_submit = _text(status.get("studyLastUpdateSubmitDate"))
+        body = f"# {title}\n\nRegistry identifier: {nct}\n\n## Brief summary\n{summary}\n\n## Detailed description\n{detailed}\n\n## Registry status\n{_text(status.get('overallStatus'))}\n\n## Last updated\n{last_update}\n\n## Study design\n{_text(design)}"
         records.append({"external_id": nct, "title": title or nct, "body": body, "content_type": "trial",
             "publication_date": _date(status.get("studyFirstSubmitDate")), "url": f"https://clinicaltrials.gov/study/{nct}", "licence": "",
             "provenance": {"connector": "ClinicalTrials.gov API v2", "nct_id": nct, "overall_status": _text(status.get("overallStatus")),
-                "last_update_submitted": _text(status.get("studyFirstPostDateStruct")), "results_first_posted": _text(status.get("resultsFirstPostDateStruct")), "rights_review_required": True}})
+                "last_update_submitted": last_update_submit, "last_update_posted": last_update,
+                "results_first_posted": _text(status.get("resultsFirstPostDateStruct")), "rights_review_required": True}})
     next_token = _text(data.get("nextPageToken"))
     total = int(data.get("totalCount", 0) or 0)
     return {"records": records, "next_cursor": next_token, "total_records": total, "complete": not bool(next_token)}
@@ -454,6 +471,88 @@ def list_document_identifiers(repo, document_id: str) -> list[dict[str, Any]]:
         rows = conn.execute("SELECT identifier_type,identifier_value,source_id,created_at FROM ucks_document_identifiers WHERE document_id=? ORDER BY identifier_type,identifier_value", (document_id,)).fetchall()
     return [dict(row) for row in rows]
 
+def _apply_pubmed_relations(repo, current_document_id: str, record: dict[str, Any]) -> dict[str, int]:
+    """Apply explicit PubMed CommentsCorrections relationships by PMID."""
+    relations = (record.get("provenance") or {}).get("publication_relations") or []
+    counts = {"retracted": 0, "corrected": 0}
+    for relation in relations:
+        if not isinstance(relation, dict):
+            continue
+        relation_type = str(relation.get("type", ""))
+        state = "retracted" if relation_type in {"RetractionIn", "RetractionOf"} else (
+            "corrected" if relation_type in {"ErratumIn", "ErratumFor", "CorrectionIn", "CorrectionOf"} else ""
+        )
+        if not state:
+            continue
+        if relation_type.endswith("In"):
+            target_ids = [current_document_id]
+        else:
+            target_ids = []
+            pmid = str(relation.get("pmid", ""))
+            if pmid:
+                try:
+                    matches = find_identifier_matches(repo, "pmid", pmid)
+                except ValueError:
+                    matches = []
+                target_ids.extend(str(item["document_id"]) for item in matches if item.get("document_id"))
+        for target_id in sorted(set(target_ids)):
+            if target_id == current_document_id and relation_type.endswith("Of"):
+                continue
+            target = repo.get_document(target_id)
+            if target and target.get("lifecycle_state") == "current":
+                repo.set_lifecycle_state(target_id, state)
+                counts[state] += 1
+    return counts
+
+
+def _apply_crossref_relations(repo, current_document_id: str, record: dict[str, Any]) -> dict[str, int]:
+    """Apply only explicit DOI-to-DOI Crossref correction/retraction relations.
+
+    A relation is acted on only when its type has unambiguous semantics and its
+    related DOI resolves to an imported document. Generic relation metadata is
+    retained but never treated as a retraction.
+    """
+    if not current_document_id or not isinstance(record.get("provenance"), dict):
+        return {"retracted": 0, "corrected": 0}
+    relation = record.get("provenance", {}).get("relation_metadata") or {}
+    if not isinstance(relation, dict):
+        return {"retracted": 0, "corrected": 0}
+    counts = {"retracted": 0, "corrected": 0}
+    for relation_type, targets in relation.items():
+        kind = str(relation_type).casefold()
+        if kind not in {"is-retracted-by", "is-retraction-of", "is-corrected-by", "is-correction-of"}:
+            continue
+        state = "retracted" if "retract" in kind else "corrected"
+        # '*-by' means the current work is the target; '*-of' names the target DOI.
+        if kind.endswith("-by"):
+            target_ids = [current_document_id]
+        else:
+            target_ids = []
+            if isinstance(targets, dict):
+                targets = [targets]
+            if isinstance(targets, list):
+                for item in targets:
+                    if not isinstance(item, dict):
+                        continue
+                    if str(item.get("id-type", "")).casefold() == "doi" and item.get("id"):
+                        try:
+                            matches = find_identifier_matches(repo, "doi", str(item["id"]))
+                        except (ValueError, AttributeError):
+                            matches = []
+                        target_ids.extend(str(m["document_id"]) for m in matches if m.get("document_id"))
+        for target_id in sorted(set(target_ids)):
+            if target_id == current_document_id and kind.endswith("-of"):
+                continue
+            try:
+                target = repo.get_document(target_id)
+                if target and target.get("lifecycle_state") == "current":
+                    repo.set_lifecycle_state(target_id, state)
+                    counts[state] += 1
+            except (ValueError, KeyError):
+                continue
+    return counts
+
+
 def _automated_screen_record(record: dict[str, Any], connector: str) -> dict[str, Any]:
     """Apply bounded integrity checks before managed records enter the library.
 
@@ -567,6 +666,9 @@ def sync_connector(repo, source_id: str, query: str, limit: int = 25, *, include
                     _index_record_identifiers(repo, existing["id"], source_id, record)
                     if str(record.get("provenance", {}).get("publisher_lifecycle_signal", "")).casefold() == "retracted":
                         repo.set_lifecycle_state(existing["id"], "retracted")
+                    _apply_crossref_relations(repo, existing["id"], record)
+                    if connector == "pubmed":
+                        _apply_pubmed_relations(repo, existing["id"], record)
                     continue
                 result = repo.ingest_document(source_id=source_id, title=record["title"], body=body,
                     content_type=record["content_type"], external_id=record["external_id"],
@@ -578,6 +680,9 @@ def sync_connector(repo, source_id: str, query: str, limit: int = 25, *, include
                     _index_record_identifiers(repo, result["id"], source_id, record)
                     if str(record.get("provenance", {}).get("publisher_lifecycle_signal", "")).casefold() == "retracted":
                         repo.set_lifecycle_state(result["id"], "retracted")
+                    _apply_crossref_relations(repo, result["id"], record)
+                    if connector == "pubmed":
+                        _apply_pubmed_relations(repo, result["id"], record)
             if page.get("complete", True) or not page.get("next_cursor"):
                 break
             next_cursor = str(page.get("next_cursor", ""))

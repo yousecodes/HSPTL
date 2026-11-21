@@ -30,7 +30,7 @@ from typing import Any
 WORKSPACES = ("ward_board", "clinic")
 
 # A case must have a curriculum-eligible or clinical-review status before it can be drawn.
-REQUIRED_CLINICAL_REVIEW = {"curated", "reviewed", "validated"}
+REQUIRED_CLINICAL_REVIEW = {"curated", "reviewed", "validated", "synthetic_qa_passed"}
 REQUIRED_PUBLICATION = {"published"}
 
 
@@ -77,7 +77,13 @@ class LotteryCandidate:
             "label": self.label,
             "rights_status": self.rights_status,
             "clinical_review_status": self.clinical_review_status,
+            "clinical_validation_status": ("not_assessed_synthetic_qa_only" if self.clinical_review_status == "synthetic_qa_passed" else
+                                            "not_assessed" if self.clinical_review_status == "curated" else
+                                            self.clinical_review_status),
             "publication_status": self.publication_status,
+            "publication_label": ("Provisional educational use" if self.clinical_review_status == "synthetic_qa_passed" else
+                                  "Published HSPTL curriculum" if self.clinical_review_status == "curated" else
+                                  self.publication_status.replace("_", " ").title()),
             "source_refs": [dict(ref) for ref in self.source_refs],
             "answer_withheld": not revealed,
         }
@@ -93,8 +99,9 @@ class LotteryError(ValueError):
 class CaseLottery:
     """Securely random daily selection over an eligible, rights-cleared pool."""
 
-    def __init__(self, store):
+    def __init__(self, store, *, auto_replenish: bool = False):
         self.store = store
+        self.auto_replenish = bool(auto_replenish)
         self._initialise()
 
     def _initialise(self) -> None:
@@ -254,6 +261,18 @@ class CaseLottery:
         return {"created": created, "already_present": existing,
                 "total_curated_cases": created + existing}
 
+    def replenish_curated_cases(self) -> dict[str, int]:
+        """Idempotently import every HSPTL-authored curriculum vignette.
+
+        This is intentionally limited to the authored curriculum bank. Harvested
+        publisher records and arbitrary model output are never promoted into the
+        daily lottery by this operation.
+        """
+        result = self.seed_curated_cases()
+        result["source"] = "hsptl_authored_curriculum"
+        result["automatic"] = 1
+        return result
+
     def register_case(self, *, case_id: str = "", title: str, stem: str, prompt: str,
                       label: str, specialty: str = "", difficulty: str = "Intermediate",
                       presenting_complaint: str = "", patient_age_value: int | None = None,
@@ -321,7 +340,7 @@ class CaseLottery:
         sql = "SELECT case_id FROM lottery_cases"
         if not include_ineligible:
             sql += (" WHERE enabled=1 AND publication_status IN ('published')"
-                    " AND clinical_review_status IN ('curated','reviewed','validated')")
+                    " AND clinical_review_status IN ('curated','reviewed','validated','synthetic_qa_passed')")
         sql += " ORDER BY updated_at DESC LIMIT ?"
         with self.store.transaction() as conn:
             ids = [row["case_id"] for row in conn.execute(sql, (max(1, min(int(limit), 1000)),))]
@@ -369,6 +388,10 @@ class CaseLottery:
         """
         if workspace not in WORKSPACES:
             raise LotteryError(f"Unknown lottery workspace: {workspace}")
+        # Runtime instances opt into reconciliation; isolated/test instances keep
+        # explicit pool semantics. Harvested records are never promoted here.
+        if self.auto_replenish:
+            self.replenish_curated_cases()
         day = (draw_date or date.today().isoformat())[:10]
         try:
             date.fromisoformat(day)

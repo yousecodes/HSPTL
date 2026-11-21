@@ -136,3 +136,39 @@ def test_generation_uses_retrieved_source_verbatim_and_labels_extractive_mode(tm
     for section in a['body']['sections']:
         claim=section['claims'][0]
         assert claim['text']==claim['citations'][0]['quote']
+
+
+def test_optional_local_model_can_generate_citation_constrained_content(tmp_path):
+    class LocalFake:
+        def generate(self, *, title, kind, required_sections, spans):
+            return {"sections": [
+                {"heading": heading, "claims": [{
+                    "text": "The source describes structured assessment.",
+                    "citations": [{"chunk_id": "chunk-1", "quote": "The guideline recommends structured assessment"}],
+                }]} for heading in required_sections
+            ], "limitations": ["Local model output; clinical validity has not been independently assessed."]}
+
+    e, repo = engine(tmp_path)
+    e.model_generator = LocalFake()
+    e.model_name = "test-local-model"
+    artifact = e.generate(workspace="clinic", kind="case_report", title="Local synthesis",
+                          source_documents=["d1"], ucks_repo=repo)
+    assert artifact["body"]["generation_mode"] == "local_model_citation_constrained"
+    assert artifact["body"]["publication"]["clinical_validation"] == "not_assessed"
+
+
+def test_local_model_numeric_claim_must_be_supported_by_verbatim_citation(tmp_path):
+    class UnsafeLocal:
+        def generate(self, *, title, kind, required_sections, spans):
+            return {"sections": [
+                {"heading": heading, "claims": [{
+                    "text": "The source recommends 40 mg daily.",
+                    "citations": [{"chunk_id": "chunk-1", "quote": "The guideline recommends structured assessment"}],
+                }]} for heading in required_sections
+            ], "limitations": []}
+
+    e, repo = engine(tmp_path)
+    e.model_generator = UnsafeLocal()
+    with pytest.raises(ValueError, match="numeric detail absent"):
+        e.generate(workspace="clinic", kind="case_report", title="Unsafe synthesis",
+                   source_documents=["d1"], ucks_repo=repo)

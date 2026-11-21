@@ -1,5 +1,14 @@
 # Changelog
 
+## Autonomous-vision implementation update (unreleased; based on 6.0.0)
+
+- Added optional loopback-only Ollama synthesis with exact-quote citation validation and deterministic no-key fallback.
+- Added automatic, privacy-minimised teaching-case authoring from accepted synthetic FHIR bundles and connected it to the shared Daily Case Lottery. Synthetic QA status is explicitly not clinical validation.
+- Added rolling updated-date discovery profiles for PubMed, Crossref and ClinicalTrials.gov, plus accurate ClinicalTrials.gov last-update metadata.
+- Added automatic downstream lifecycle handling for explicit Crossref DOI correction and retraction relations.
+- Kept external source rights restrictions, provisional publication labels and post-use clinical validation separate.
+- Frontend production build and native Windows clean-install remain release gates; they were not verified in the implementation environment.
+
 ## 6.0.0 — Unified clinical learning and simulation platform
 
 - Consolidated the seven learner workspaces: Clinic, Lab, Ward, Library, Learning, Exam Hall and Rounds, with My Profile and the daily archive in the shared workspace shell.

@@ -373,3 +373,85 @@ def test_explicit_pubmed_retraction_signal_quarantines_imported_record(tmp_path,
     document = repo.search("Retracted paper", limit=1)[0]
     stored = repo.get_document(document["document_id"])
     assert stored["lifecycle_state"] == "retracted"
+
+
+def test_crossref_explicit_retraction_relation_marks_related_doi_retracted(tmp_path, monkeypatch):
+    from backend.hsptl_core.ucks import UCKSRepository
+    from backend.hsptl_core.store import StudyStore
+    import backend.hsptl_core.ucks_connectors as connectors
+
+    repo = UCKSRepository(StudyStore(tmp_path / "crossref-relations.sqlite3"))
+    source = repo.register_source(name="Crossref relations", source_type="external_import",
+        locator="https://api.crossref.org", config={"connector": "crossref"})
+    records = [
+        {"external_id": "DOI:10.1000/original", "title": "Original paper",
+         "body": "# Original paper\n\nOriginal abstract", "content_type": "other",
+         "publication_date": "2024", "url": "https://doi.org/10.1000/original", "licence": "",
+         "provenance": {"connector": "Crossref", "doi": "10.1000/original", "relation_metadata": {}}},
+        {"external_id": "DOI:10.1000/retraction", "title": "Retraction notice",
+         "body": "# Retraction notice\n\nNotice metadata", "content_type": "other",
+         "publication_date": "2026", "url": "https://doi.org/10.1000/retraction", "licence": "",
+         "provenance": {"connector": "Crossref", "doi": "10.1000/retraction",
+             "relation_metadata": {"is-retraction-of": [{"id-type": "doi", "id": "10.1000/original"}]}}},
+    ]
+    monkeypatch.setitem(connectors._FETCHERS, "crossref", lambda q, n, session: records)
+    connectors.sync_connector(repo, source["id"], "relation test")
+    original = repo.search("Original paper", limit=1)[0]
+    assert repo.get_document(original["document_id"])["lifecycle_state"] == "retracted"
+
+
+def test_crossref_update_watermark_uses_updated_filter_and_sort():
+    from backend.hsptl_core.ucks_connectors import _crossref_page
+
+    session = Session({"message": {"items": [], "total-results": 0}})
+    page = _crossref_page(
+        "clinical medicine from-update-date:2026-10-22 until-update-date:2026-11-21",
+        20, session,
+    )
+    params = session.calls[0][1]["params"]
+    assert params["sort"] == "updated"
+    assert "from-update-date:2026-10-22" in params["filter"]
+    assert "until-update-date:2026-11-21" in params["filter"]
+    assert page["complete"] is True
+
+
+def test_clinicaltrials_connector_preserves_true_last_update_watermark():
+    from backend.hsptl_core.ucks_connectors import _clinicaltrials_page
+
+    payload = {"studies": [{"protocolSection": {
+        "identificationModule": {"nctId": "NCT00000001", "briefTitle": "Updated trial"},
+        "descriptionModule": {"briefSummary": "A synthetic summary", "detailedDescription": ""},
+        "statusModule": {"overallStatus": "RECRUITING", "studyFirstSubmitDate": "2020-01-01",
+                         "studyLastUpdatePostDateStruct": {"date": "2026-11-20"},
+                         "studyLastUpdateSubmitDate": "2026-11-18"},
+        "designModule": {},
+    }}], "totalCount": 1}
+    page = _clinicaltrials_page("updated", 20, Session(payload))
+    record = page["records"][0]
+    assert record["provenance"]["last_update_posted"] == "2026-11-20"
+    assert record["provenance"]["last_update_submitted"] == "2026-11-18"
+    assert "2026-11-20" in record["body"]
+
+
+def test_pubmed_explicit_retraction_relationship_marks_referenced_pmid(tmp_path, monkeypatch):
+    from backend.hsptl_core.ucks import UCKSRepository
+    from backend.hsptl_core.store import StudyStore
+    import backend.hsptl_core.ucks_connectors as connectors
+
+    repo = UCKSRepository(StudyStore(tmp_path / "pubmed-relations.sqlite3"))
+    source = repo.register_source(name="PubMed relation feed", source_type="external_import",
+        locator="https://eutils.ncbi.nlm.nih.gov", config={"connector": "pubmed"})
+    records = [
+        {"external_id": "PMID:1001", "title": "Original article", "body": "# Original article\n\nAbstract",
+         "content_type": "other", "publication_date": "2023", "url": "https://pubmed.ncbi.nlm.nih.gov/1001/",
+         "licence": "", "provenance": {"connector": "PubMed", "pmid": "1001"}},
+        {"external_id": "PMID:1002", "title": "Retraction notice", "body": "# Retraction notice\n\nNotice",
+         "content_type": "other", "publication_date": "2026", "url": "https://pubmed.ncbi.nlm.nih.gov/1002/",
+         "licence": "", "provenance": {"connector": "PubMed", "pmid": "1002",
+             "publication_relations": [{"type": "RetractionOf", "pmid": "1001"}]}},
+    ]
+    monkeypatch.setitem(connectors._PAGE_FETCHERS, "pubmed", lambda q, n, session, cursor="": {
+        "records": records, "next_cursor": "", "total_records": 2, "complete": True})
+    connectors.sync_connector(repo, source["id"], "pubmed relation test")
+    original = repo.search("Original article", limit=1)[0]
+    assert repo.get_document(original["document_id"])["lifecycle_state"] == "retracted"

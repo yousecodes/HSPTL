@@ -48,6 +48,16 @@ DEFAULT_EXTERNAL_PROFILES: tuple[dict[str, Any], ...] = (
         "limit": 20,
     },
     {
+        "key": "pubmed_recently_modified_evidence",
+        "name": "PubMed — recently modified clinical evidence",
+        "connector": "pubmed",
+        "catalogue_key": "pubmed",
+        "family": "bibliographic",
+        "locator": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
+        "query": '("clinical practice guideline"[Publication Type] OR "systematic review"[Publication Type] OR "randomized controlled trial"[Publication Type]) AND ("last 30 days"[mdat])',
+        "limit": 20,
+    },
+    {
         "key": "clinicaltrials_active_studies",
         "name": "ClinicalTrials.gov — active interventional studies",
         "connector": "clinicaltrials_gov",
@@ -67,6 +77,26 @@ DEFAULT_EXTERNAL_PROFILES: tuple[dict[str, Any], ...] = (
         "query": "clinical medicine guideline systematic review",
         "limit": 20,
     },
+    {
+        "key": "crossref_recently_updated_metadata",
+        "name": "Crossref — recently updated clinical metadata",
+        "connector": "crossref",
+        "catalogue_key": "crossref",
+        "family": "bibliographic",
+        "locator": "https://api.crossref.org/works",
+        "query": "clinical medicine guideline systematic review from-update-date:{date_30d_ago} until-update-date:{today}",
+        "limit": 20,
+    },
+    {
+        "key": "clinicaltrials_recently_updated",
+        "name": "ClinicalTrials.gov — recently updated study records",
+        "connector": "clinicaltrials_gov",
+        "catalogue_key": "clinicaltrials_gov",
+        "family": "trial_registry",
+        "locator": "https://clinicaltrials.gov/api/v2/studies",
+        "query": "AREA[LastUpdatePostDate]RANGE[{date_30d_ago},{today}]",
+        "limit": 20,
+    },
 )
 
 
@@ -80,6 +110,8 @@ def expand_query(template: str, now: datetime | None = None) -> str:
         "date_365d_ago": year_ago.strftime("%Y-%m-%d"),
         "pubmed_today": today.strftime("%Y/%m/%d"),
         "pubmed_365d_ago": year_ago.strftime("%Y/%m/%d"),
+        "date_30d_ago": (today - timedelta(days=30)).strftime("%Y-%m-%d"),
+        "pubmed_30d_ago": (today - timedelta(days=30)).strftime("%Y/%m/%d"),
     }
     result = template
     for key, value in values.items():

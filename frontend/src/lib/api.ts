@@ -347,7 +347,7 @@ export type HarvestedCase = {
 export type ContentLabel = 'GENERATED CONTENT' | 'IMPORTED CONTENT' | 'SYNTHETIC CONTENT' | 'DERIVED CONTENT';
 export type LotteryCase = {
   case_id: string; title: string; specialty: string; difficulty: string; stem: string; prompt: string; presenting_complaint?: string; patient_age_value?: number | null; patient_age_unit?: string;
-  label: ContentLabel; rights_status: string; clinical_review_status: string; publication_status: string;
+  label: ContentLabel; rights_status: string; clinical_review_status: string; clinical_validation_status?: string; publication_status: string; publication_label?: string;
   source_refs: Array<Record<string, unknown>>; answer_withheld: boolean;
   reveal?: Record<string, unknown>;
 };

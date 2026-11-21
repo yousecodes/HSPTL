@@ -350,7 +350,9 @@ def _eligible_case(lottery: CaseLottery, case_id: str = "case-1", **overrides):
     return lottery.register_case(**payload)
 
 
-def test_lottery_returns_explicit_state_when_pool_is_empty(store):
+def test_lottery_returns_explicit_state_when_pool_and_authored_bank_are_empty(store, monkeypatch):
+    from backend.hsptl_core import puzzles
+    monkeypatch.setattr(puzzles, "PUZZLES", [])
     lottery = CaseLottery(store)
     result = lottery.draw(workspace="clinic", draw_date="2026-11-20")
     assert result["state"] == "no_eligible_case"
@@ -379,16 +381,12 @@ def test_daily_lottery_seeds_and_draws_hsptl_curated_cases(store):
     assert repeated["already_present"] >= 10
 
 
-def test_empty_daily_lottery_draw_recovers_after_startup_curriculum_seed(store):
-    lottery = CaseLottery(store)
-    empty = lottery.draw(workspace="clinic", draw_date="2026-11-20")
-    assert empty["state"] == "no_eligible_case"
-
-    lottery.seed_curated_cases()
-    recovered = lottery.draw(workspace="clinic", draw_date="2026-11-20")
-    assert recovered["state"] == "selected"
-    assert recovered["draw_id"] == empty["draw_id"]
-    assert recovered["case"] is not None
+def test_daily_draw_automatically_replenishes_authored_curriculum(store):
+    lottery = CaseLottery(store, auto_replenish=True)
+    draw = lottery.draw(workspace="clinic", draw_date="2026-11-20")
+    assert draw["state"] == "selected"
+    assert draw["case"] is not None
+    assert draw["case"]["clinical_review_status"] == "curated"
 
 
 def test_lottery_never_draws_an_unreviewed_case(store):

@@ -100,7 +100,8 @@ from .hsptl_core.hsp_tl40.proforma import ProformaRuntime as _ProformaRuntime
 LABELS = ContentLabelRegistry(STORE)
 SOURCE_REGISTRY = SourceRegistry(STORE)
 LOCAL_SOURCES = LocalSourceManager(STORE, labels=LABELS, registry=SOURCE_REGISTRY)
-CASE_LOTTERY = CaseLottery(STORE)
+CASE_LOTTERY = CaseLottery(STORE, auto_replenish=True)
+SYNTHETIC_FACTORY.attach_case_lottery(CASE_LOTTERY)
 UCKS_REPO = _UCKSRepository(STORE)
 PEARLS_FACTORY = PearlsFactory(STORE, ucks_repo=UCKS_REPO,
                                registry=SOURCE_REGISTRY, labels=LABELS)

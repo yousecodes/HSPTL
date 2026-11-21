@@ -45,10 +45,18 @@ OUTPUT_SCHEMAS: dict[str, dict[str, Any]] = {
 }
 
 class GenerationDistribution:
- def __init__(self, db_path: Path, model_generator: ModelGenerator|None=None):
-  # model_generator is accepted only for backwards-compatible construction; it is never called.
-  self.model_generator=None
-  self.model_name="extractive_retrieval_cache_v1"
+ def __init__(self, db_path: Path, model_generator: Any|None=None):
+  # A local-only model is opt-in; deterministic extractive generation remains the no-setup default.
+  self.model_generator = model_generator
+  self.model_name = "extractive_retrieval_cache_v1"
+  if self.model_generator is None:
+   try:
+    from .local_reasoning import local_model_enabled, OllamaLocalGenerator
+    if local_model_enabled():
+     self.model_generator = OllamaLocalGenerator()
+     self.model_name = "ollama_local_optional"
+   except Exception:
+    self.model_generator = None
   self.db_path=Path(db_path); self.db_path.parent.mkdir(parents=True,exist_ok=True); self._init()
  def connect(self):
   c=sqlite3.connect(self.db_path,timeout=15); c.row_factory=sqlite3.Row; c.execute('PRAGMA foreign_keys=ON'); return c
@@ -205,7 +213,7 @@ class GenerationDistribution:
   ranked=self._rank_spans(spans, title+' '+WORKSPACE_SCRIPTS[workspace]['purpose']+' '+' '.join(OUTPUT_SCHEMAS[kind]['sections']))
   # Cache key includes exact retrieved text and template version; source corrections naturally invalidate it.
   source_fingerprint=[(x['chunk_id'],hashlib.sha256(x['text'].encode()).hexdigest(),x.get('source_url',''),x.get('licence',''),x.get('title',''),x.get('review_status','')) for x in ranked]
-  cache_key=hashlib.sha256(json.dumps({'workspace':workspace,'kind':kind,'title':title.strip(),'sources':source_fingerprint,'template':1},sort_keys=True).encode()).hexdigest()
+  cache_key=hashlib.sha256(json.dumps({'workspace':workspace,'kind':kind,'title':title.strip(),'sources':source_fingerprint,'template':2,'generator':self.model_name},sort_keys=True).encode()).hexdigest()
   cached_artifact_id=None
   with self.connect() as c:
    cached=c.execute('SELECT artifact_json FROM generation_cache WHERE cache_key=?',(cache_key,)).fetchone()
@@ -217,18 +225,37 @@ class GenerationDistribution:
     c.execute('INSERT INTO generation_audit VALUES(?,?,?,?,?)',('audit_'+uuid.uuid4().hex,aid,'generated_from_cache',json.dumps({'cache_key':cache_key,'retrieved_chunks':len(ranked)}),now))
     cached_artifact_id=aid
   if cached_artifact_id: return self.get_artifact(cached_artifact_id)
-  output=self._extractive_output(kind,title,ranked)
+  generation_mode = "retrieval_cache_extractive"
+  output = None
+  if self.model_generator is not None:
+   try:
+    output = self.model_generator.generate(title=title, kind=kind,
+        required_sections=OUTPUT_SCHEMAS[kind]["sections"], spans=ranked)
+    generation_mode = "local_model_citation_constrained"
+   except Exception:
+    # Local model failure never blocks core operation and never triggers a cloud fallback.
+    output = None
+  if output is None:
+   output=self._extractive_output(kind,title,ranked)
   body=self._validate_output(kind,output,ranked)
+  # Numeric claims must be traceable to at least one cited source excerpt.
+  for section in body["sections"]:
+   for claim in section["claims"]:
+    numbers = set(re.findall(r"(?<![A-Za-z])\d+(?:\.\d+)?%?", claim["text"]))
+    cited_quotes = " ".join(c["quote"] for c in claim["citations"])
+    unsupported = [n for n in numbers if n not in cited_quotes]
+    if unsupported:
+     raise ValueError("Generated claim contains numeric detail absent from its cited source")
   refs=[]
   for did in source_documents:
    doc=ucks_repo.get_document(did); refs.append({'document_id':did,'current_version':int(doc.get('current_version',1)),'content_hash':doc.get('content_hash',''),'title':doc['title'],'source_url':doc.get('source_url',''),'review_status':doc.get('review_status','harvested'),'licence':doc.get('licence','')})
-  body.update({'publication':{'status':'provisional','clinical_validation':'not_assessed','educational_use':'supervised_educational_use','human_preapproval_required':False},'purpose':WORKSPACE_SCRIPTS[workspace]['purpose'],'workflow':WORKSPACE_SCRIPTS[workspace]['sequence'],'generation_mode':'retrieval_cache_extractive','retrieval':{'method':'bm25_lite','ranked_chunks':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'score':x.get('retrieval_score',0)} for x in ranked]},'source_spans':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'source_url':x.get('source_url',''),'licence':x.get('licence','')} for x in ranked]})
+  body.update({'publication':{'status':'provisional','clinical_validation':'not_assessed','educational_use':'supervised_educational_use','human_preapproval_required':False},'purpose':WORKSPACE_SCRIPTS[workspace]['purpose'],'workflow':WORKSPACE_SCRIPTS[workspace]['sequence'],'generation_mode':generation_mode,'retrieval':{'method':'bm25_lite','ranked_chunks':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'score':x.get('retrieval_score',0)} for x in ranked]},'source_spans':[{'chunk_id':x['chunk_id'],'document_id':x['document_id'],'source_url':x.get('source_url',''),'licence':x.get('licence','')} for x in ranked]})
   payload=json.dumps({'kind':kind,'title':title,'workspace':workspace,'body':body,'refs':refs},sort_keys=True,ensure_ascii=False)
   aid='gen_'+uuid.uuid4().hex; now=self._now()
   with self.connect() as c:
    c.execute('INSERT INTO generated_artifacts(id,kind,title,workspace,status,body_json,source_refs_json,content_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(aid,kind,title,workspace,'provisional',json.dumps(body,ensure_ascii=False),json.dumps(refs,ensure_ascii=False),hashlib.sha256(payload.encode()).hexdigest(),now,now))
    c.execute('INSERT OR REPLACE INTO generation_cache(cache_key,artifact_json,created_at,last_used_at,hit_count) VALUES(?,?,?,?,0)',(cache_key,payload,now,now))
-   c.execute('INSERT INTO generation_audit VALUES(?,?,?,?,?)',('audit_'+uuid.uuid4().hex,aid,'generated',json.dumps({'mode':'retrieval_cache_extractive','cache_key':cache_key,'retrieved_chunks':len(ranked),'validation':body['validation']}),now))
+   c.execute('INSERT INTO generation_audit VALUES(?,?,?,?,?)',('audit_'+uuid.uuid4().hex,aid,'generated',json.dumps({'mode':generation_mode,'cache_key':cache_key,'retrieved_chunks':len(ranked),'validation':body['validation']}),now))
   return self.get_artifact(aid)
  def create_structured_draft(self, *, workspace:str, kind:str, title:str, body:dict[str,Any], source_refs:list[dict[str,Any]]|None=None, template_version:int=1, audit_event:str="generated_structured_draft"):
   """Persist a structurally validated artefact as provisionally publishable.

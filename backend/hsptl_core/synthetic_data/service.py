@@ -247,6 +247,10 @@ class SyntheticDataFactory:
         pipeline = SyntheticDataPipeline(
             self.store, adapter=self.adapter, java_detector=self.java_detector
         )
+        self._active_case_context = {
+            "dataset_id": str(run.get("dataset_id") or f"synds_{run['run_id'][-20:]}"),
+            "recipe_id": str(run.get("recipe_id") or ""),
+        }
         ctx = PipelineContext(
             run=run, recipe=recipe, settings=settings, storage_root=self.storage_root,
             adapter=pipeline.adapter_for(recipe), cancel=cancel,
@@ -255,19 +259,37 @@ class SyntheticDataFactory:
             checkpoint_sink=(lambda data: checkpoint(data) if checkpoint else None),
             progress_sink=progress,
         )
-        return pipeline.run(ctx)
+        try:
+            return pipeline.run(ctx)
+        finally:
+            self._active_case_context = {}
 
     def _import_directory(self, directory: Path) -> dict[str, Any]:
-        """Import accepted bundles into the existing clinical case repository."""
+        """Import accepted bundles and create privacy-minimised lottery cases."""
         if self._case_repository is None:
-            return {"patients": 0, "facts": 0, "imported": False,
-                    "note": "No case repository is wired."}
-        return self._case_repository.import_directory(directory)
+            result = {"patients": 0, "facts": 0, "imported": False,
+                      "note": "No case repository is wired."}
+        else:
+            result = self._case_repository.import_directory(directory)
+        if self._case_lottery is not None and self._active_case_context:
+            from .teaching_cases import author_cases_from_accepted_fhir
+            teaching = author_cases_from_accepted_fhir(
+                directory, self._case_lottery,
+                dataset_id=self._active_case_context.get("dataset_id", ""),
+                recipe_id=self._active_case_context.get("recipe_id", ""),
+            )
+            result["teaching_cases"] = teaching
+        return result
 
     _case_repository = None
+    _case_lottery = None
 
     def attach_case_repository(self, repository) -> None:
         self._case_repository = repository
+
+    def attach_case_lottery(self, lottery) -> None:
+        """Attach the shared daily lottery for automatic synthetic teaching cases."""
+        self._case_lottery = lottery
 
     # -- read models ------------------------------------------------------ #
 

@@ -220,7 +220,8 @@ def test_daily_case_lottery_seeds_existing_curriculum_at_startup():
     assert "_CASE_LOTTERY.seed_curated_cases()" in main
     assert "from .puzzles import PUZZLES" in lottery
     assert "clinical_review_status=\"curated\"" in lottery
-    assert "clinical_review_status IN ('curated','reviewed','validated')" in lottery
+    assert "clinical_review_status IN ('curated','reviewed','validated','synthetic_qa_passed')" in lottery
+    assert "clinical_validation_status" in lottery
     assert "not patient-case content" in events
 
 

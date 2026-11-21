@@ -758,7 +758,7 @@ def test_external_source_automation_manual_refresh_only_queues_work(tmp_path: Pa
 
 def test_external_source_automation_syncs_mocked_providers_without_per_record_approval(tmp_path: Path, monkeypatch):
     from backend.hsptl_core import ucks_connectors
-    from backend.hsptl_core.external_source_automation import ExternalSourceAutomation
+    from backend.hsptl_core.external_source_automation import DEFAULT_EXTERNAL_PROFILES, ExternalSourceAutomation
 
     repo = UCKSRepository(StudyStore(tmp_path / "external-sync.sqlite3"))
     automation = ExternalSourceAutomation(repo)
@@ -782,11 +782,12 @@ def test_external_source_automation_syncs_mocked_providers_without_per_record_ap
 
     result = automation.run_once(force=True, trigger_source="test")
     assert result["status"] == "completed"
-    assert result["claimed"] == 4
-    assert len(result["results"]) == 4
-    assert repo.stats()["documents"] == 4
+    expected_profiles = len(DEFAULT_EXTERNAL_PROFILES)
+    assert result["claimed"] == expected_profiles
+    assert len(result["results"]) == expected_profiles
+    assert repo.stats()["documents"] == expected_profiles
     imported = repo.search("mock external evidence")
-    assert len(imported) == 4
+    assert len(imported) == expected_profiles
     assert all(item["review_status"] == "machine_screened" for item in imported)
     assert all(item["provenance_json"] for item in imported)
     state = automation.status()

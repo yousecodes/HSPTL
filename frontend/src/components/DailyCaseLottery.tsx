@@ -86,7 +86,7 @@ export default function DailyCaseLottery({ workspace }: { workspace: 'clinic' | 
         The drawn case was withdrawn: {daily.ineligibility_reasons.join(', ')}.
       </p> : null}
       <p className="muted mt-2 text-xs">
-        The lottery draws published HSPTL-curated teaching cases and separately reviewed or validated cases, provided the applicable reuse rights permit the intended use.
+        The lottery draws HSPTL-curated, separately reviewed or validated, and structurally screened synthetic-record cases. Synthetic QA is not clinical validation; applicable reuse rights are still required.
       </p>
     </section>;
   }
@@ -113,12 +113,13 @@ export default function DailyCaseLottery({ workspace }: { workspace: 'clinic' | 
     <p className="mt-2 font-semibold leading-relaxed">{item.prompt}</p>
 
     <div className="hx-dataset-meta mt-3">
-      <div><b>Curriculum / review</b><span>{item.clinical_review_status === 'curated' ? 'HSPTL-curated teaching vignette' : item.clinical_review_status}</span></div>
+      <div><b>Curriculum / review</b><span>{item.clinical_review_status === 'curated' ? 'HSPTL-curated teaching vignette' : item.clinical_review_status === 'synthetic_qa_passed' ? 'Synthetic record — automated QA passed' : item.clinical_review_status}</span></div>
       <div><b>Rights</b><span>{item.rights_status}</span></div>
-      <div><b>Publication</b><span>{item.publication_status}</span></div>
+      <div><b>Publication</b><span>{item.publication_label || item.publication_status}</span></div>
     </div>
 
     {item.clinical_review_status === 'curated' ? <p className="muted mt-3 text-xs">HSPTL-authored fictional teaching vignette. It is not a real patient record and is not presented as independently expert-validated.</p> : null}
+    {item.clinical_review_status === 'synthetic_qa_passed' ? <p className="muted mt-3 text-xs">Fictional Synthea record accepted by automated data-quality checks; warnings may remain. Clinical validity has not been assessed. The answer reflects the coded record, not an independently established diagnosis.</p> : null}
 
     {daily.clinical_event ? <div className="mt-3 rounded-lg bg-[var(--surface-muted)] p-3 text-xs"><b>Today's clinical theme:</b> {daily.clinical_event.title}</div> : null}
 
