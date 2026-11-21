@@ -169,7 +169,8 @@ def free_disk_mb(path: Path) -> int:
 
 def preflight(settings: FactorySettings, storage_root: Path, *,
               population: int, fhir: bool, csv: bool,
-              require_validator: bool, generation_running: bool) -> PreflightReport:
+              require_validator: bool, generation_running: bool,
+              java_detector: Callable[[str], tuple[bool, str]] | None = None) -> PreflightReport:
     report = PreflightReport()
 
     jar = Path(settings.synthea_jar).expanduser() if settings.synthea_jar else None
@@ -204,7 +205,11 @@ def preflight(settings: FactorySettings, storage_root: Path, *,
         else "An exact Synthea version or commit identifier is required.",
     ))
 
-    java_ok, java_detail = detect_java(settings.java_path)
+    # Production always uses the real Java executable detector. Tests can
+    # inject a deterministic detector when using FakeSyntheaAdapter, so the
+    # suite never has to launch a platform-specific shell stub.
+    detector = java_detector or detect_java
+    java_ok, java_detail = detector(settings.java_path)
     report.checks.append(PreflightCheck("java_runtime", java_ok, True, java_detail))
 
     if settings.module_dir:

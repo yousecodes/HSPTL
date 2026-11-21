@@ -43,28 +43,35 @@ def home(tmp_path):
     return tmp_path
 
 
-def make_factory(tmp_path: Path, adapter=None, *, java_stub: Path | None = None) -> SyntheticDataFactory:
+def make_factory(tmp_path: Path, adapter=None) -> SyntheticDataFactory:
     db = tmp_path / "factory.sqlite3"
     store = StudyStore(db)
-    factory = SyntheticDataFactory(db, storage_root=tmp_path, job_store=store,
-                                   adapter=adapter or FakeSyntheaAdapter())
+    factory = SyntheticDataFactory(
+        db, storage_root=tmp_path, job_store=store,
+        adapter=adapter or FakeSyntheaAdapter(),
+        java_detector=lambda _path: (True, "OpenJDK test runtime (fake adapter)"),
+    )
     settings = factory.settings()
-    artifact = java_stub or (tmp_path / "synthea.jar")
+    artifact = tmp_path / "synthea.jar"
     if not artifact.exists():
         artifact.write_bytes(b"pinned synthea artifact placeholder")
     settings.synthea_jar = str(artifact)
     settings.synthea_version = "3.3.0"
     settings.synthea_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
-    settings.java_path = str(_java_stub(tmp_path))
+    settings.java_path = "java"
     factory.update_settings(settings.to_dict())
     return factory
 
 
-def _java_stub(tmp_path: Path) -> Path:
-    path = tmp_path / "fake-java"
-    path.write_text("#!/bin/sh\necho 'openjdk version 21.0.1' >&2\nexit 0\n", encoding="utf-8")
-    path.chmod(0o755)
-    return path
+def test_factory_store_connection_context_closes_sqlite_handle(tmp_path):
+    factory = make_factory(tmp_path)
+    with factory.store._connect() as connection:
+        connection.execute("SELECT 1").fetchone()
+
+    # sqlite3.Connection's own context manager does not close the handle;
+    # FactoryStore's wrapper must, so Windows can remove temporary DB folders.
+    with pytest.raises(sqlite3.ProgrammingError):
+        connection.execute("SELECT 1")
 
 
 # --------------------------------------------------------------------------- #
@@ -154,7 +161,7 @@ def test_preflight_fails_on_checksum_mismatch(tmp_path):
     jar = tmp_path / "synthea.jar"
     jar.write_bytes(b"content")
     settings = FactorySettings(synthea_jar=str(jar), synthea_version="3.3.0",
-                               synthea_sha256="0" * 64, java_path=str(_java_stub(tmp_path)))
+                               synthea_sha256="0" * 64, java_path="java")
     report = preflight(settings, tmp_path, population=5, fhir=True, csv=True,
                        require_validator=False, generation_running=False)
     assert report.ok is False
@@ -165,7 +172,7 @@ def test_preflight_requires_a_pinned_checksum(tmp_path):
     jar = tmp_path / "synthea.jar"
     jar.write_bytes(b"content")
     settings = FactorySettings(synthea_jar=str(jar), synthea_version="3.3.0",
-                               java_path=str(_java_stub(tmp_path)))
+                               java_path="java")
     report = preflight(settings, tmp_path, population=5, fhir=True, csv=True,
                        require_validator=False, generation_running=False)
     assert "synthea_checksum" in {item.check_id for item in report.blockers}
@@ -175,7 +182,7 @@ def test_preflight_rejects_an_out_of_range_population(tmp_path):
     jar = tmp_path / "synthea.jar"
     jar.write_bytes(b"content")
     settings = FactorySettings(
-        synthea_jar=str(jar), synthea_version="3.3.0", java_path=str(_java_stub(tmp_path)),
+        synthea_jar=str(jar), synthea_version="3.3.0", java_path="java",
         synthea_sha256=hashlib.sha256(b"content").hexdigest(),
     )
     report = preflight(settings, tmp_path, population=0, fhir=True, csv=True,
@@ -187,7 +194,7 @@ def test_preflight_blocks_a_second_concurrent_generation(tmp_path):
     jar = tmp_path / "synthea.jar"
     jar.write_bytes(b"content")
     settings = FactorySettings(
-        synthea_jar=str(jar), synthea_version="3.3.0", java_path=str(_java_stub(tmp_path)),
+        synthea_jar=str(jar), synthea_version="3.3.0", java_path="java",
         synthea_sha256=hashlib.sha256(b"content").hexdigest(),
     )
     report = preflight(settings, tmp_path, population=5, fhir=True, csv=True,
@@ -200,7 +207,7 @@ def test_preflight_requires_a_validator_when_strict_conformance_is_requested(tmp
     jar = tmp_path / "synthea.jar"
     jar.write_bytes(b"content")
     settings = FactorySettings(
-        synthea_jar=str(jar), synthea_version="3.3.0", java_path=str(_java_stub(tmp_path)),
+        synthea_jar=str(jar), synthea_version="3.3.0", java_path="java",
         synthea_sha256=hashlib.sha256(b"content").hexdigest(),
     )
     report = preflight(settings, tmp_path, population=5, fhir=True, csv=True,

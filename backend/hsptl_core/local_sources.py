@@ -169,6 +169,75 @@ def _is_reparse_point(entry: os.DirEntry[str]) -> bool:
     return bool(file_attributes & reparse_flag)
 
 
+def _hardlink_count(path: Path, stat_result: os.stat_result) -> int | None:
+    """Return a trustworthy hard-link count, including on Windows.
+
+    POSIX exposes the count directly through ``st_nlink``. On Windows, query
+    the file handle as well so filesystems/runtime combinations that report a
+    lossy ``DirEntry.stat`` result cannot silently bypass the source-scan guard.
+    A failed Windows metadata query is treated as unknown and the caller fails
+    closed rather than opening the file.
+    """
+    stat_count = int(getattr(stat_result, "st_nlink", 1) or 1)
+    if os.name != "nt":
+        return stat_count
+
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        class _FileTime(ctypes.Structure):
+            _fields_ = [
+                ("dwLowDateTime", wintypes.DWORD),
+                ("dwHighDateTime", wintypes.DWORD),
+            ]
+
+        class _ByHandleFileInformation(ctypes.Structure):
+            _fields_ = [
+                ("dwFileAttributes", wintypes.DWORD),
+                ("ftCreationTime", _FileTime),
+                ("ftLastAccessTime", _FileTime),
+                ("ftLastWriteTime", _FileTime),
+                ("dwVolumeSerialNumber", wintypes.DWORD),
+                ("nFileSizeHigh", wintypes.DWORD),
+                ("nFileSizeLow", wintypes.DWORD),
+                ("nNumberOfLinks", wintypes.DWORD),
+                ("nFileIndexHigh", wintypes.DWORD),
+                ("nFileIndexLow", wintypes.DWORD),
+            ]
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        create_file = kernel32.CreateFileW
+        create_file.argtypes = [
+            wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+            wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE,
+        ]
+        create_file.restype = wintypes.HANDLE
+        get_info = kernel32.GetFileInformationByHandle
+        get_info.argtypes = [wintypes.HANDLE, ctypes.POINTER(_ByHandleFileInformation)]
+        get_info.restype = wintypes.BOOL
+        close_handle = kernel32.CloseHandle
+        close_handle.argtypes = [wintypes.HANDLE]
+        close_handle.restype = wintypes.BOOL
+
+        # FILE_READ_ATTRIBUTES; permit concurrent readers/writers/deletion;
+        # OPEN_EXISTING; OPEN_REPARSE_POINT prevents following a swapped link.
+        handle = create_file(
+            str(path), 0x80, 0x1 | 0x2 | 0x4, None, 3, 0x00200000, None,
+        )
+        if handle == ctypes.c_void_p(-1).value:
+            return None
+        try:
+            details = _ByHandleFileInformation()
+            if not get_info(handle, ctypes.byref(details)):
+                return None
+            return max(stat_count, int(details.nNumberOfLinks))
+        finally:
+            close_handle(handle)
+    except (AttributeError, OSError, TypeError, ValueError):
+        return None
+
+
 def validate_root(path: str | Path) -> Path:
     """Validate a candidate allowlisted root before it is ever registered."""
     try:
@@ -291,7 +360,11 @@ def walk_root(root: Path, *, max_files: int = MAX_FILES_PER_SCAN,
             if not _is_inside(root, absolute):
                 refusals.append({"path": entry.path, "reason": "resolves_outside_root"})
                 continue
-            if info.st_nlink > 1:
+            link_count = _hardlink_count(absolute, info)
+            if link_count is None:
+                refusals.append({"path": entry.path, "reason": "file_link_count_unavailable"})
+                continue
+            if link_count > 1:
                 # A hardlink can alias a file outside the root.
                 refusals.append({"path": entry.path, "reason": "hardlinked_file_not_read"})
                 continue

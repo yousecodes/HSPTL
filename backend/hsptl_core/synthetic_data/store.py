@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -26,12 +27,27 @@ class FactoryStore:
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
 
+    @contextmanager
     def _connect(self):
+        """Yield a configured connection and always close its file handle.
+
+        ``sqlite3.Connection``'s own context manager commits or rolls back,
+        but does not close the connection. This wrapper provides both the
+        transaction boundary and deterministic cleanup (important on Windows,
+        where an open SQLite handle prevents temporary database deletion).
+        """
         conn = sqlite3.connect(str(self.db_path), timeout=30)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA foreign_keys=ON")
-        return conn
+        try:
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA foreign_keys=ON")
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
     # -- runs ------------------------------------------------------------- #
 

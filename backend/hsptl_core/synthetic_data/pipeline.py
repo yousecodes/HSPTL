@@ -121,9 +121,11 @@ def idempotency_key(recipe: dict[str, Any], spec: GenerationSpec, settings: Fact
 class SyntheticDataPipeline:
     """Runs one dataset job from preflight to registration."""
 
-    def __init__(self, store, *, adapter: GeneratorAdapter | None = None):
+    def __init__(self, store, *, adapter: GeneratorAdapter | None = None,
+                 java_detector: Callable[[str], tuple[bool, str]] | None = None):
         self.store = store
         self._adapter_override = adapter
+        self._java_detector = java_detector
 
     def adapter_for(self, recipe: dict[str, Any]) -> GeneratorAdapter:
         if self._adapter_override is not None:
@@ -207,6 +209,7 @@ class SyntheticDataPipeline:
             population=spec.population, fhir=spec.fhir, csv=spec.csv,
             require_validator=bool(ctx.recipe["body"].get("validation", {}).get("strict_fhir_required")),
             generation_running=self._other_active_run(ctx.run_id),
+            java_detector=self._java_detector,
         )
         java_check = next((item for item in report.checks if item.check_id == "java_runtime"), None)
         ctx.counts["preflight"] = report.to_dict()

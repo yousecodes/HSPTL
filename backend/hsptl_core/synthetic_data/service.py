@@ -47,7 +47,8 @@ def _now() -> str:
 class SyntheticDataFactory:
     def __init__(self, db_path: Path, *, storage_root: Path | None = None,
                  event_kernel=None, adapter: GeneratorAdapter | None = None,
-                 job_store=None):
+                 job_store=None,
+                 java_detector: Callable[[str], tuple[bool, str]] | None = None):
         self.db_path = Path(db_path)
         self.storage_root = paths.ensure_layout(Path(storage_root) if storage_root
                                                 else self.db_path.parent)
@@ -59,6 +60,7 @@ class SyntheticDataFactory:
         self.kernel = event_kernel
         self.adapter = adapter
         self.job_store = job_store
+        self.java_detector = java_detector
         self._cancel_events: dict[str, threading.Event] = {}
         self._lock = threading.Lock()
 
@@ -243,7 +245,9 @@ class SyntheticDataFactory:
             raise RuntimeError("The recipe for this run no longer exists.")
         settings = self.settings()
         cancel = self.cancel_event(job_id)
-        pipeline = SyntheticDataPipeline(self.store, adapter=self.adapter)
+        pipeline = SyntheticDataPipeline(
+            self.store, adapter=self.adapter, java_detector=self.java_detector
+        )
         ctx = PipelineContext(
             run=run, recipe=recipe, settings=settings, storage_root=self.storage_root,
             adapter=pipeline.adapter_for(recipe), cancel=cancel,
