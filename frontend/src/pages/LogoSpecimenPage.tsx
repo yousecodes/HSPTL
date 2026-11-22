@@ -70,9 +70,9 @@ export default function LogoSpecimenPage({ theme, onThemeToggle, onBack }: Props
       <header className="spec-head">
         <div>
           <div className="s-eyebrow">Brand verification</div>
-          <h1>Five-letter HSPTL monogram</h1>
+          <h1>HSPTL Case Mosaic identity</h1>
           <p>
-            True pixel sizes, not scaled previews. The 16px optical trade-off is stated below.
+            True pixel sizes, not scaled previews. The Case Mosaic mark is tested at actual icon sizes.
           </p>
         </div>
         <div className="s-toolbar">
@@ -132,15 +132,12 @@ export default function LogoSpecimenPage({ theme, onThemeToggle, onBack }: Props
       </section>
 
       <section className="spec-section spec-limits">
-        <h2>16px optical trade-off</h2>
+        <h2>Small-size legibility</h2>
         <p>
-          At <b>32px and above</b> all five letters — H, S, P, T and L — are arranged in a clear two-column grid.
+          The Case Mosaic symbol brings four case tiles together around a central insight spark. Its palette combines deep navy, discovery blue, teal, community green and amber.
         </p>
         <p>
-          At <b>16px</b> the five-module cross silhouette survives, but the individual letters
-          do not. The compact variant shown at 16px above keeps T, H, P and L and drops the S,
-          whose three bars close up below roughly 24px. This is a deliberate optical reduction:
-          at 16px the mark is a recognisable five-module cross, not five readable letters.
+          At <b>16px</b>, check that the four case tiles and central insight spark remain distinct on both light and dark backgrounds. Use the compact asset only where the full mark loses clarity.
         </p>
         <p className="spec-note">
           Verify with a rasteriser at exact pixel sizes before shipping. Do not rely on a

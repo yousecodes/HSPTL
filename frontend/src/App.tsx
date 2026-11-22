@@ -190,7 +190,7 @@ export default function App() {
 
   function renderPage() {
     switch (view) {
-      case 'home': return <ClinicPage/>;
+      case 'home': return <HomeDashboardPage onNavigate={navigate}/>;
       case 'library': return <LearningLibraryPage key={selectedUnitId || 'library'} initialUnitId={selectedUnitId}/>;
       case 'practice': return <ClinicPage/>;
       case 'simulation': return <ClinicalSimulationPage/>;
@@ -231,7 +231,7 @@ export default function App() {
   return <div className={`hx-app hx-theme-${resolvedTheme}`} data-workspace-skin={skin.id} data-skin-canvas={skin.presentation.canvas} data-skin-density={skin.presentation.density}>
     <header className="hx-appbar">
       <button className="hx-brand" onClick={() => navigate('home')} aria-label="HSPTL home" title="HSPTL home">
-        <img src="/hsptl-mark.svg" alt=""/><span><b>HSPTL</b><small>CLINICAL LEARNING</small></span>
+        <img src="/brand/hsptl-case-mosaic-mark.svg" alt=""/><span><b>HSPTL</b><small>Dx, Ix, Tx</small></span>
       </button>
       <nav className="hx-primary-nav" aria-label="Main navigation">
         {primaryNavigation.map((item) => <button key={item.id} className={`hx-nav-link ${view === item.id ? 'is-active' : ''}`} onClick={() => navigate(item.id)} aria-current={view === item.id ? 'page' : undefined} title={item.description}>
@@ -259,7 +259,7 @@ export default function App() {
       <main className={`hx-main-content hx-view-${view}`} key={view}>
         <Suspense fallback={<RouteLoading/>}>{renderPage()}</Suspense>
       </main>
-      <footer className="hx-footer"><span>HSPTL 6.0.0</span><span>Deterministic · Governed · Human-reviewed</span></footer>
+      <footer className="hx-footer"><span>HSPTL 6.0.0</span><span>Discover · Solve · Contribute</span></footer>
     </div>
     <HospitalDirectory
       open={directoryOpen}

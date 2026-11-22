@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="250" viewBox="0 0 900 250" role="img" aria-labelledby="title desc">
+<title id="title">HSPTL Case Mosaic — Primary logo</title>
+<desc id="desc">Four clinical knowledge tiles converge around a central insight spark. Wordmark HSPTL with the tagline Dx, Ix, Tx.</desc>
+
+<g transform="translate(34 26) scale(0.70)">
+<g id="case-mosaic-symbol" stroke="none">
+  <path id="tile-nw" fill="#183858" d="M48 22 H102 Q124 22 124 44 V83 Q124 98 111 111 L99 123 H48 Q24 123 24 99 V46 Q24 22 48 22 Z"/>
+  <path id="tile-ne" fill="#187BB7" d="M208 22 H154 Q132 22 132 44 V83 Q132 98 145 111 L157 123 H208 Q232 123 232 99 V46 Q232 22 208 22 Z"/>
+  <path id="tile-sw" fill="#28B8C3" d="M48 234 H102 Q124 234 124 212 V173 Q124 158 111 145 L99 133 H48 Q24 133 24 157 V210 Q24 234 48 234 Z"/>
+  <path id="tile-se" fill="#50B69C" d="M208 234 H154 Q132 234 132 212 V173 Q132 158 145 145 L157 133 H208 Q232 133 232 157 V210 Q232 234 208 234 Z"/>
+  <path id="insight-spark" fill="#E9A94C" d="M128 91 C135 111 145 121 165 128 C145 135 135 145 128 165 C121 145 111 135 91 128 C111 121 121 111 128 91 Z"/>
+</g></g>
+<text x="255" y="122" font-family="Inter,Arial,sans-serif" font-size="82" font-weight="760" letter-spacing="-3" fill="#183858">HSPTL</text>
+<text x="260" y="171" font-family="Inter,Arial,sans-serif" font-size="31" font-weight="650" letter-spacing="1.2" fill="#187BB7">Dx, Ix, Tx</text>
+<text x="260" y="209" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="450" letter-spacing="0.2" fill="#5F7486">Discover. Solve. Contribute.</text>
+</svg>

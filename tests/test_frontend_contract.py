@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_frontend_brand_and_minimal_workspace_theme_tokens_exist():
     css = (ROOT / "frontend" / "src" / "index.css").read_text(encoding="utf-8")
     html = (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
-    for token in ("#174438", "#1F5B49", "#2F7764", "#F4F7F2", "#FCFDF9", "#DCE5DB", "#10241D", "#1A342B", "#365244", "#3C936C", "#C28D40", "#B95D50"):
+    for token in ("#183858", "#31536F", "#28B8C3", "#F4F8FB", "#FFFFFF", "#DCE7EF", "#121D2B", "#1A2A3C", "#34485F", "#388C70", "#C58A41", "#B85F61"):
         assert token in css
     assert "HSPTL" in html
     assert "Plus+Jakarta+Sans" in html
@@ -121,7 +121,7 @@ def test_clinic_accessibility_status_focus_and_target_sizes():
     assert "aria-pressed={selectedKey === patient.patient_key}" in patient_records
     assert "summary:focus-visible" in css
     assert ".form-field:focus-visible" in css
-    assert "outline: 3px solid #7FA58F" in css
+    assert "outline: 3px solid #80C6DB" in css
     assert "provenance-badge" not in patient_records + clinic + lottery
 
 
@@ -129,10 +129,10 @@ def test_hsptl_brand_and_workspace_specific_minimalist_tokens_exist():
     app = (ROOT / "frontend" / "src" / "App.tsx").read_text(encoding="utf-8")
     css = (ROOT / "frontend" / "src" / "index.css").read_text(encoding="utf-8")
     assert "<b>HSPTL</b>" in app
-    assert "/hsptl-mark.svg" in app
+    assert "/brand/hsptl-case-mosaic-mark.svg" in app
     for token in ("--workspace-accent: #16805D", "--workspace-accent: #5267A8", "--workspace-accent: #0D8B91", "--workspace-accent: #B77924", "--hsptl-canvas"):
         assert token in css
-    assert "HSPTL — Clinical Practice & Learning" in (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
+    assert "HSPTL — Dx, Ix, Tx" in (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
 
 
 def test_unfinished_workspaces_are_real_episode_backed_workflows():
@@ -257,3 +257,34 @@ def test_frontend_icon_references_are_declared():
         used.update(re.findall(r'<Icon\s+name=["\']([^"\']+)["\']', text))
 
     assert used <= declared, f"Undeclared icon names: {sorted(used - declared)}"
+
+
+def test_focus_home_is_the_real_landing_page_and_uses_shared_daily_lottery():
+    app = (ROOT / "frontend" / "src" / "App.tsx").read_text(encoding="utf-8")
+    home = (ROOT / "frontend" / "src" / "pages" / "HomeDashboardPage.tsx").read_text(encoding="utf-8")
+    assert "case 'home': return <HomeDashboardPage onNavigate={navigate}/>;" in app
+    assert "api.lotteryDaily('clinic')" in home
+    assert "Solve today’s case" in home
+    assert "api.lotteryReveal" not in home
+    assert "answer" not in home.lower() or "answer is never requested" in home
+    assert "No eligible case is available yet" in home
+    assert "onNavigate('profile')" in home
+
+
+def test_case_mosaic_identity_assets_and_palette_are_installed():
+    app = (ROOT / "frontend" / "src" / "App.tsx").read_text(encoding="utf-8")
+    css = (ROOT / "frontend" / "src" / "index.css").read_text(encoding="utf-8")
+    for asset in ("hsptl-case-mosaic-mark.svg", "hsptl-case-mosaic-mono-dark.svg", "hsptl-case-mosaic-mono-light.svg"):
+        path = ROOT / "frontend" / "public" / "brand" / asset
+        assert path.is_file()
+        assert "viewBox=\"0 0 256 256\"" in path.read_text(encoding="utf-8")
+    assert "/brand/hsptl-case-mosaic-mark.svg" in app
+    assert "--hx-ink: #183858" in css
+    assert "--hx-teal: #28B8C3" in css
+    assert "--hx-canvas: #F4F8FB" in css
+
+
+def test_focus_home_exposes_all_seven_hsptl_workspaces():
+    home = (ROOT / "frontend" / "src" / "pages" / "HomeDashboardPage.tsx").read_text(encoding="utf-8")
+    for label in ("Clinic", "Lab", "Ward", "Library", "Learning", "Exam Hall", "Rounds"):
+        assert f"<b>{label}</b>" in home

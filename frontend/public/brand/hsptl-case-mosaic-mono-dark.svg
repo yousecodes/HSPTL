@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">HSPTL Case Mosaic — Dark monochrome</title>
+<desc id="desc">Monochrome dark version of the Case Mosaic symbol on white.</desc>
+
+<rect width="256" height="256" rx="48" fill="#FFFFFF"/>
+<g id="case-mosaic-symbol" stroke="none">
+  <path id="tile-nw" fill="#172B3D" d="M48 22 H102 Q124 22 124 44 V83 Q124 98 111 111 L99 123 H48 Q24 123 24 99 V46 Q24 22 48 22 Z"/>
+  <path id="tile-ne" fill="#172B3D" d="M208 22 H154 Q132 22 132 44 V83 Q132 98 145 111 L157 123 H208 Q232 123 232 99 V46 Q232 22 208 22 Z"/>
+  <path id="tile-sw" fill="#172B3D" d="M48 234 H102 Q124 234 124 212 V173 Q124 158 111 145 L99 133 H48 Q24 133 24 157 V210 Q24 234 48 234 Z"/>
+  <path id="tile-se" fill="#172B3D" d="M208 234 H154 Q132 234 132 212 V173 Q132 158 145 145 L157 133 H208 Q232 133 232 157 V210 Q232 234 208 234 Z"/>
+  <path id="insight-spark" fill="#172B3D" d="M128 91 C135 111 145 121 165 128 C145 135 135 145 128 165 C121 145 111 135 91 128 C111 121 121 111 128 91 Z"/>
+</g>
+</svg>
